@@ -16,9 +16,6 @@
 
 RED.portUtils = (function() {
 
-    var MODE_LEFT_RIGHT= 'left-right';
-    var MODE_TOP_BOTTOM= 'top-bottom';
-
     // Pre-calculate the positions of the ports.
     // node = node (i.e. not d3Node
     // X = x position of node
@@ -30,12 +27,12 @@ RED.portUtils = (function() {
         var portCounts = countOutputPorts(node); // Counts ports on the right and bottom edges
 
         // Node information;
-        var nw = node.w;   // hardcoded in view.js line 50;
-        var nh = node.h;    // hardcoded in view.js line 51;
+        var nw = node.w;
+        var nh = node.h;
         nh = Math.max(nh,(portCounts.rightPortCount||0) * 15); // Recalculate based on number of ports...
-        var pW = 10;    // port width
-        var pH = 10;    // port height
-        var pS = 13;     // port spacing
+        var pW = 10;// port width
+        var pH = 10;// port height
+        var pS = 13;// port spacing
 
         // ************************************
         // Calculate INPUTS.
@@ -107,7 +104,7 @@ RED.portUtils = (function() {
         return {rightPortCount:rightPortCount, bottomPortCount:bottomPortCount}
     }
 
-    // connects output ports to input ports. target is an Input Port
+    // connects output ports to input ports.
     var drawWire = function (outputNode, inputNode, outputPortIndex)
     {
         outputPortIndex = outputPortIndex;
@@ -137,13 +134,14 @@ RED.portUtils = (function() {
         return wire
     }
 
+    // Draw from the port on the node to the mouse position.
     var drawMouseWire = function (node, portIndex, mouseX, mouseY)
     {
         var outputPositions = calculatePortPositions(node,0,0);
 
         // This will be facing to the right or downwards
         var outdata = outputPositions.out[portIndex];
-        var x1 = node.x - node.w/2 + 5 + outdata.x ;//+ outputNode.w/2;
+        var x1 = node.x - node.w/2 + 5 + outdata.x ;
         var y1 = node.y - node.h/2 + 5 + outdata.y ;
         var cx1 = x1 + (outdata.vertical ? 0 : 60);
         var cy1 = y1 + (outdata.vertical ? 60 : 0);
@@ -167,8 +165,6 @@ RED.portUtils = (function() {
     return {
         getEdgeIndex: getEdgeIndex,
         countOutputPorts: countOutputPorts,
-        MODE_LEFT_RIGHT: MODE_LEFT_RIGHT ,
-        MODE_TOP_BOTTOM: MODE_TOP_BOTTOM,
         calculatePortPositions:calculatePortPositions,
         drawWire:drawWire,
         drawMouseWire:drawMouseWire
