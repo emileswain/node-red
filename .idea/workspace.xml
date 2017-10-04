@@ -2,12 +2,30 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f18ab5d9-f826-4291-8e37-39273920d09f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/editor/js/nodes.js" afterPath="$PROJECT_DIR$/editor/js/nodes.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/editor/js/ui/editor.js" afterPath="$PROJECT_DIR$/editor/js/ui/editor.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/editor/js/ui/view.js" afterPath="$PROJECT_DIR$/editor/js/ui/view.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/settings.js" afterPath="$PROJECT_DIR$/settings.js" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/Intent-selector.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/Intent-selector.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/conversational-intent.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/conversational-intent.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/conversational-utterance.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/conversational-utterance.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/dummy-node.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/dummy-node.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/icons/spotify.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/icons/spotify_bw.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/msg-sequence.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/msg-sequence.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/package.json" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-api.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-api.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-authorise.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-authorise.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-callback.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-callback.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-config.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-config.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-scope.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/mynodes/conversational/spotify-scope.js" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,8 +39,8 @@
       <file leaf-file-name="view.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/editor/js/ui/view.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="423">
-              <caret line="881" column="17" lean-forward="true" selection-start-line="881" selection-start-column="17" selection-end-line="881" selection-end-column="17" />
+            <state relative-caret-position="592">
+              <caret line="881" column="17" lean-forward="false" selection-start-line="881" selection-start-column="17" selection-end-line="881" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -141,7 +159,6 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="NodeModulesDirectoryManager">
-    <handled-path value="$PROJECT_DIR$/mynodes/conversational/node_modules" />
     <handled-path value="$PROJECT_DIR$/node_modules" />
     <handled-path value="$PROJECT_DIR$/test/red/runtime/nodes/resources/local/TestNodeModule/node_modules" />
   </component>
@@ -177,6 +194,11 @@
             <path>
               <item name="node-red" type="b2602c69:ProjectViewProjectNode" />
               <item name="node-red" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="node-red" type="b2602c69:ProjectViewProjectNode" />
+              <item name="node-red" type="462c0819:PsiDirectoryNode" />
+              <item name="editor" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="node-red" type="b2602c69:ProjectViewProjectNode" />
@@ -318,12 +340,12 @@
       <option name="presentableId" value="Default" />
       <updated>1506007125315</updated>
       <workItem from="1506007126523" duration="57839000" />
-      <workItem from="1507026598831" duration="21818000" />
+      <workItem from="1507026598831" duration="23005000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="79657000" />
+    <option name="totallyTimeSpent" value="80844000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1690" y="24" width="1905" height="1123" extended-state="0" />
@@ -4126,8 +4148,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/editor/js/ui/view.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="881" column="17" lean-forward="true" selection-start-line="881" selection-start-column="17" selection-end-line="881" selection-end-column="17" />
+        <state relative-caret-position="592">
+          <caret line="881" column="17" lean-forward="false" selection-start-line="881" selection-start-column="17" selection-end-line="881" selection-end-column="17" />
           <folding />
         </state>
       </provider>
