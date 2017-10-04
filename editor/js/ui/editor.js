@@ -657,7 +657,7 @@ RED.editor = (function() {
             }
         }
     }
-    function buildLabelRow(type, index, value, placeHolder) {
+    function buildLabelRow(type, index, value, placeHolder, portAlignment) {
         var result = $('<div>',{class:"node-label-form-row"});
         if (type === undefined) {
             $('<span>').html(RED._("editor.noDefaultLabel")).appendTo(result);
@@ -666,7 +666,10 @@ RED.editor = (function() {
             result.addClass("");
             var id = "node-label-form-"+type+"-"+index;
             $('<label>',{for:id}).html((index+1)+".").appendTo(result);
+            var portLayout = $('<input />', { type: 'checkbox', id: 'cb-'+id, checked: portAlignment}).css("width","20px").appendTo(result);
             var input = $('<input>',{type:"text",id:id, placeholder: placeHolder}).val(value).appendTo(result);
+            // EMILE - add layout checkbox for ports
+
             var clear = $('<button class="editor-button editor-button-small"><i class="fa fa-times"></i></button>').appendTo(result);
             clear.click(function(evt) {
                 evt.preventDefault();
@@ -687,6 +690,9 @@ RED.editor = (function() {
 
         var inputLabels = node.inputLabels || [];
         var outputLabels = node.outputLabels || [];
+        // EMILE manage port alignments
+        var inputAlignments = node.inputAlignments || [];
+        var outputAlignments = node.outputAlignments || [];
 
         var inputPlaceholder = node._def.inputLabels?RED._("editor.defaultLabel"):RED._("editor.noDefaultLabel");
         var outputPlaceholder = node._def.outputLabels?RED._("editor.defaultLabel"):RED._("editor.noDefaultLabel");
@@ -696,7 +702,7 @@ RED.editor = (function() {
         var inputsDiv = $("#node-label-form-inputs");
         if (inputCount > 0) {
             for (i=0;i<inputCount;i++) {
-                buildLabelRow("input",i,inputLabels[i],inputPlaceholder).appendTo(inputsDiv);
+                buildLabelRow("input",i,inputLabels[i],inputPlaceholder, inputAlignments[i]).appendTo(inputsDiv);
             }
         } else {
             buildLabelRow().appendTo(inputsDiv);
@@ -705,7 +711,7 @@ RED.editor = (function() {
         var outputsDiv = $("#node-label-form-outputs");
         if (outputCount > 0) {
             for (i=0;i<outputCount;i++) {
-                buildLabelRow("output",i,outputLabels[i],outputPlaceholder).appendTo(outputsDiv);
+                buildLabelRow("output",i,outputLabels[i],outputPlaceholder, outputAlignments[i]).appendTo(outputsDiv);
             }
         } else {
             buildLabelRow().appendTo(outputsDiv);
@@ -922,10 +928,14 @@ RED.editor = (function() {
                         //     }
                         // }
                         var removedLinks = updateNodeProperties(editing_node,outputMap);
+// TODO EMILE add port alignment check.
+                        var inputLabels = $("#node-label-form-inputs").children().find("input[type='text']");
+                        var inputAlignments = $("#node-label-form-inputs").children().find("input[type='checkbox']");
 
-                        var inputLabels = $("#node-label-form-inputs").children().find("input");
-                        var outputLabels = $("#node-label-form-outputs").children().find("input");
+                        var outputLabels = $("#node-label-form-outputs").children().find("input[type='text']");
+                        var outputAlignments = $("#node-label-form-outputs").children().find("input[type='checkbox']");
 
+// INPUT LABELS.
                         var hasNonBlankLabel = false;
                         newValue = inputLabels.map(function() {
                             var v = $(this).val();
@@ -938,6 +948,7 @@ RED.editor = (function() {
                             editing_node.inputLabels = newValue;
                             changed = true;
                         }
+// OUTPUT LABELS.
                         hasNonBlankLabel = false;
                         newValue = new Array(editing_node.outputs);
                         outputLabels.each(function() {
@@ -952,13 +963,55 @@ RED.editor = (function() {
                             hasNonBlankLabel = hasNonBlankLabel || v!== "";
                             newValue[index] = v;
                         })
-
                         if ((editing_node.outputLabels === undefined && hasNonBlankLabel) ||
                             (editing_node.outputLabels !== undefined && JSON.stringify(newValue) !== JSON.stringify(editing_node.outputLabels))) {
                             changes.outputLabels = editing_node.outputLabels;
                             editing_node.outputLabels = newValue;
                             changed = true;
                         }
+// PORT ALIGNMENT LABELS.
+                        // TODO EMile - added output port alignment update value.
+                        newValue = new Array(editing_node.outputs);
+                        outputAlignments.each(function (){
+                            console.log("Component = "+ $(this) + "  == Value : "+$(this).val());
+                            var index = $(this).attr('id').substring(26);// cb-node-label-form-output-<index>
+                            if (outputMap && outputMap.hasOwnProperty(index)) {
+                                index = parseInt(outputMap[index]);
+                                if (index === -1) {
+                                    return;
+                                }
+                            }
+                            var v = $(this).is(":checked");
+                            console.log("Component = "+ $(this) + "  == Value : "+v);
+                            newValue[index] = v;
+                        })
+                        if ((editing_node.outputAlignments === undefined ) ||
+                            (editing_node.outputAlignments !== undefined && JSON.stringify(newValue) !== JSON.stringify(editing_node.outputAlignments))) {
+                            changes.outputAlignments = editing_node.outputAlignments;
+                            editing_node.outputAlignments = newValue;
+                            changed = true;
+                        }
+
+// TODO EMile - added Input port alignment update value.
+                        newValue = new Array(editing_node.inputs);
+                        inputAlignments.each(function (){
+                            var index = $(this).attr('id').substring(25);// cb-node-label-form-input-<index>
+                            if (outputMap && outputMap.hasOwnProperty(index)) {
+                                index = parseInt(outputMap[index]);
+                                if (index === -1) {
+                                    return;
+                                }
+                            }
+                            var v = $(this).is(":checked");
+                            newValue[index] = v;
+                        })
+                        if ((editing_node.inputAlignments === undefined ) ||
+                            (editing_node.inputAlignments !== undefined && JSON.stringify(newValue) !== JSON.stringify(editing_node.inputAlignments))) {
+                            changes.inputAlignments = editing_node.inputAlignments;
+                            editing_node.inputAlignments = newValue;
+                            changed = true;
+                        }
+
 
                         if (changed) {
                             var wasChanged = editing_node.changed;

@@ -485,6 +485,15 @@ RED.nodes = (function() {
             if (n.outputs > 0 && n.outputLabels && !/^\s*$/.test(n.outputLabels.join(""))) {
                 node.outputLabels = n.outputLabels.slice();
             }
+
+// TODO EMILE add outputAlignments // urgh, this isn't great.
+            if (n.inputs > 0 && n.inputAlignments && !/^\s*$/.test(n.inputAlignments.join("")))  {
+                node.inputAlignments = n.inputAlignments.slice();
+            }
+            if (n.outputs > 0 && n.outputAlignments && !/^\s*$/.test(n.outputAlignments.join("")))  {
+                node.outputAlignments = n.outputAlignments.slice();
+            }
+
         }
         return node;
     }
@@ -915,6 +924,8 @@ RED.nodes = (function() {
                         wires:n.wires,
                         inputLabels: n.inputLabels,
                         outputLabels: n.outputLabels,
+                        inputAlignments : n.inputAlignments,
+                        outputAlignments : n.outputAlignments,
                         changed:false,
                         _config:{}
                     };

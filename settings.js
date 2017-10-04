@@ -20,7 +20,7 @@
 
 module.exports = {
     // the tcp port that the Node-RED web server is listening on
-    uiPort: process.env.PORT || 1880,
+    uiPort: process.env.PORT || 1881,
 
     // By default, the Node-RED UI accepts connections on all IPv4 interfaces.
     // The following property can be used to listen on a specific interface. For
@@ -75,7 +75,7 @@ module.exports = {
 
     // Node-RED scans the `nodes` directory in the install directory to find nodes.
     // The following property can be used to specify an additional directory to scan.
-    //nodesDir: '/home/nol/.node-red/nodes',
+    nodesDir: './mynodes',
 
     // By default, the Node-RED UI is available at http://localhost:1880/
     // The following property can be used to specify a different root path.
@@ -109,14 +109,14 @@ module.exports = {
     // -----------------
     // To password protect the Node-RED editor and admin API, the following
     // property can be used. See http://nodered.org/docs/security.html for details.
-    //adminAuth: {
-    //    type: "credentials",
-    //    users: [{
-    //        username: "admin",
-    //        password: "$2a$08$zZWtXTja0fB1pzD4sHCMyOCMYz2Z6dNbM6tl8sJogENOMcxWV9DN.",
-    //        permissions: "*"
-    //    }]
-    //},
+    adminAuth: {
+       type: "credentials",
+       users: [{
+           username: "admin",
+           password: "$2a$08$w9aXQ/in.xsuuse/3SPJGuWhQMxzrdKjAyNW0FAJwZUAyRc4GruxC",
+           permissions: "*"
+       }]
+    },
 
     // To password protect the node-defined HTTP endpoints (httpNodeRoot), or
     // the static content (httpStatic), the following properties can be used.
@@ -131,10 +131,10 @@ module.exports = {
     // See the comment at the top of this file on how to load the `fs` module used by
     // this setting.
     //
-    //https: {
-    //    key: fs.readFileSync('privatekey.pem'),
-    //    cert: fs.readFileSync('certificate.pem')
-    //},
+    https: {
+       key: fs.readFileSync('nodereddev-key.pem'),
+       cert: fs.readFileSync('askvikki-certificate.pem')
+    },
 
     // The following property can be used to cause insecure HTTP connections to
     // be redirected to HTTPS.
@@ -222,7 +222,7 @@ module.exports = {
             // debug - record information which is more verbose than info + info + warn + error + fatal errors
             // trace - record very detailed logging + debug + info + warn + error + fatal errors
             // off - turn off all logging (doesn't affect metrics or audit)
-            level: "info",
+            level: "trace",
             // Whether or not to include metric events in the log output
             metrics: false,
             // Whether or not to include audit events in the log output

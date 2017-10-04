@@ -16,6 +16,33 @@
 
 
 RED.view = (function() {
+    // Ports may be aligned left|top or right|bottom.
+    // to position the ports neatly you need to get the index of that port along the edge.
+    // this index is used to multiply the spacing.
+    var getPortPosition = function (node, sourcePort, state){
+        var p = 0;
+        node.outputAlignments.forEach(function (v,i){
+            if(i < sourcePort && v == state)
+            {
+                p++;
+            }
+        });
+        return p;
+    }
+    // This counts the ports aligned along the right or bottom edges.
+    // You don't need to count the input ports as there is only ever one input.
+    var countOutputPorts = function (node)
+    {
+        // count ports aligned to right and bottom edges.
+        var rightPortCount = 0;
+        var bottomPortCount = 0;
+        if(node.outputAlignments !== undefined)
+        {
+            node.outputAlignments.forEach(function (v){if(v==false){rightPortCount++}else{bottomPortCount++}} );
+        }
+        return {rightPortCount:rightPortCount, bottomPortCount:bottomPortCount}
+    }
+
     var space_width = 5000,
         space_height = 5000,
         lineCurveScale = 0.75,
@@ -393,6 +420,7 @@ RED.view = (function() {
                 if (nn._def.autoedit) {
                     RED.editor.edit(nn);
                 }
+
             }
         });
         $("#chart").focus(function() {
@@ -739,35 +767,120 @@ RED.view = (function() {
             }
             mousePos = mouse_position;
             for (i=0;i<drag_lines.length;i++) {
+// TODO Emile update dragging wires
                 var drag_line = drag_lines[i];
                 var numOutputs = (drag_line.portType === PORT_TYPE_OUTPUT)?(drag_line.node.outputs || 1):1;
+                var isOutput = drag_line.portType === PORT_TYPE_OUTPUT;
                 var sourcePort = drag_line.port;
-                var portY = -((numOutputs-1)/2)*13 +13*sourcePort;
+                var node = mousedown_node; // EEK
+                var portX = 0;
+                var portY = 0;
+                var portCount = countOutputPorts(node);
 
-                var sc = (drag_line.portType === PORT_TYPE_OUTPUT)?1:-1;
-
-                var dy = mousePos[1]-(drag_line.node.y+portY);
-                var dx = mousePos[0]-(drag_line.node.x+sc*drag_line.node.w/2);
-                var delta = Math.sqrt(dy*dy+dx*dx);
-                var scale = lineCurveScale;
-                var scaleY = 0;
-
-                if (delta < node_width) {
-                    scale = 0.75-0.75*((node_width-delta)/node_width);
-                }
-                if (dx*sc < 0) {
-                    scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
-                    if (Math.abs(dy) < 3*node_height) {
-                        scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                if(isOutput == false)
+                {
+                    // is there any point to this, with only one input port ??
+                    if(node.inputAlignments !== undefined && node.inputAlignments[sourcePort] == true) {
+                        portY = 0;
+                        portX = -((numOutputs - 1) / 2) * 13 + 13 * sourcePort;
+                    }else{
+                        portY = -((numOutputs - 1) / 2) * 13 + 13 * sourcePort;
+                        portX = 0;
+                    }
+                }else{
+                    // Count outputs.
+                    if(node.outputAlignments !== undefined && node.outputAlignments[sourcePort] == true)
+                    {
+                        // align bottom
+                        portY = node_height;
+                        portX = -((portCount.bottomPortCount-1)/2)*13 +13*getPortPosition(node, sourcePort, true);
+                    }else{
+                        // align right
+                        portY = -((portCount.rightPortCount-1)/2)*13 +13*getPortPosition(node, sourcePort, false);
+                        portX = node_width;
                     }
                 }
 
-                drag_line.el.attr("d",
-                    "M "+(drag_line.node.x+sc*drag_line.node.w/2)+" "+(drag_line.node.y+portY)+
-                    " C "+(drag_line.node.x+sc*(drag_line.node.w/2+node_width*scale))+" "+(drag_line.node.y+portY+scaleY*node_height)+" "+
-                    (mousePos[0]-sc*(scale)*node_width)+" "+(mousePos[1]-scaleY*node_height)+" "+
-                    mousePos[0]+" "+mousePos[1]
+
+                // // Left Right.
+                // TODO Emile - Update Dragged Lines.
+                // var portY = -((numOutputs-1)/2)*13 +13*sourcePort;
+                //
+                // var sc = (drag_line.portType === PORT_TYPE_OUTPUT)?1:-1;
+                //
+                // var dy = mousePos[1]-(drag_line.node.y+portY);
+                // var dx = mousePos[0]-(drag_line.node.x+sc*drag_line.node.w/2);
+                // var delta = Math.sqrt(dy*dy+dx*dx);
+                // var scale = lineCurveScale;
+                // var scaleY = 0;
+                //
+                // if (delta < node_width) {
+                //     scale = 0.75-0.75*((node_width-delta)/node_width);
+                // }
+                // if (dx*sc < 0) {
+                //     scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
+                //     if (Math.abs(dy) < 3*node_height) {
+                //         scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                //     }
+                // }
+                //
+                // drag_line.el.attr("d",
+                //     "M "+(drag_line.node.x+sc*drag_line.node.w/2)+" "+(drag_line.node.y+portY)+
+                //     " C "+(drag_line.node.x+sc*(drag_line.node.w/2+node_width*scale))+" "+(drag_line.node.y+portY+scaleY*node_height)+" "+
+                //     (mousePos[0]-sc*(scale)*node_width)+" "+(mousePos[1]-scaleY*node_height)+" "+
+                //     mousePos[0]+" "+mousePos[1]
+                //     );
+
+                // Top Bottom
+                // portX = -((numOutputs-1)/2)*13 +13*sourcePort;
+                // portY = -((numOutputs-1)/2)*13 +13*sourcePort;
+
+                var sc = (drag_line.portType === PORT_TYPE_OUTPUT)?1:-1; // direction.
+
+                var dx = mousePos[0]-(drag_line.node.x+portX);
+                var dy = mousePos[1]-(drag_line.node.y+sc*drag_line.node.h/2);
+                var delta = Math.sqrt(dy*dy+dx*dx);
+                var scale = lineCurveScale;
+                var scaleX = 0;
+                var scaleY = 0;
+
+
+                if(node.outputAlignments !== undefined && node.outputAlignments[sourcePort] == true || (isOutput == false && node.inputAlignments !== undefined && node.inputAlignments[sourcePort] == true))
+                {
+                    if (delta < node_height) {
+                        scale = 0.75-0.75*((node_height-delta)/node_height);
+                    }
+                    if (dy*sc < 0) {
+                        scale += 2*(Math.min(5*node_height,Math.abs(dy))/(5*node_height));
+                        if (Math.abs(dx) < 3*node_width) {
+                            scaleX = ((dx>0)?0.5:-0.5)*(((3*node_width)-Math.abs(dx))/(3*node_width))*(Math.min(node_width,Math.abs(dy))/(node_width)) ;
+                        }
+                    }
+
+                    drag_line.el.attr("d",
+                        "M "+(drag_line.node.x+portX)+" "+(drag_line.node.y+sc*drag_line.node.h/2)+
+                        " C "+(drag_line.node.x+portX+scaleX*node_width)+" "+(drag_line.node.y+sc*(drag_line.node.h/2+node_height*scale)) // control
+                        +" "+(mousePos[0]-scaleX*node_width) +" "+(mousePos[1]-sc*(scale)*node_height)+" "+ // control
+                        mousePos[0]+" "+mousePos[1] // end
                     );
+                }else{
+                    if (delta < node_width) {
+                        scale = 0.75-0.75*((node_width-delta)/node_width);
+                    }
+                    if (dx*sc < 0) {
+                        scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
+                        if (Math.abs(dy) < 3*node_height) {
+                            scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                        }
+                    }
+                    drag_line.el.attr("d",
+                        "M "+(drag_line.node.x+sc*drag_line.node.w/2)+" "+(drag_line.node.y+portY)+
+                        " C "+(drag_line.node.x+sc*(drag_line.node.w/2+node_width*scale))+" "+(drag_line.node.y+portY+scaleY*node_height)+" "+
+                        (mousePos[0]-sc*(scale)*node_width)+" "+(mousePos[1]-scaleY*node_height)+" "+
+                        mousePos[0]+" "+mousePos[1]
+                        );
+                }
+
             }
             d3.event.preventDefault();
         } else if (mouse_mode == RED.state.MOVING) {
@@ -2114,7 +2227,6 @@ RED.view = (function() {
                             }
 
                             var numOutputs = d.outputs;
-                            var y = (d.h/2)-((numOutputs-1)/2)*13;
                             d.ports = d.ports || d3.range(numOutputs);
                             d._ports = thisNode.selectAll(".port_output").data(d.ports);
                             var output_group = d._ports.enter().append("g").attr("class","port_output");
@@ -2130,13 +2242,39 @@ RED.view = (function() {
                             d._ports.exit().remove();
                             if (d._ports) {
                                 numOutputs = d.outputs || 1;
-                                y = (d.h/2)-((numOutputs-1)/2)*13;
-                                var x = d.w - 5;
+                                var original = d.outputAlignments;
+// TODO EMILE - adjust alignment edge of output nodes.
+                                var rightPortCount = 0;
+                                var bottomPortCount = 0;
+                                var rPortInd = 0;
+                                var bPortInd = 0;
+                                if(d.outputAlignments !== undefined)
+                                    d.outputAlignments.forEach(function (v){if(v==false){rightPortCount++}else{bottomPortCount++}} );
+
+                                var w = d.w;
+                                var h = d.h;
+                                var outputAlignments = d.outputAlignments;
+
                                 d._ports.each(function(d,i) {
-                                        var port = d3.select(this);
-                                        //port.attr("y",(y+13*i)-5).attr("x",x);
-                                        port.attr("transform", function(d) { return "translate("+x+","+((y+13*i)-5)+")";});
+                                    var port = d3.select(this);
+                                    var x = 0;
+                                    var y = 0;
+                                    if(outputAlignments !== undefined && outputAlignments[i])
+                                    {
+                                        // true = align bottom
+                                        var y = h - 5;
+                                        var x = (w/2)-((bottomPortCount-1)/2)*13;
+                                        x = ((x+13*(bPortInd++))-5);
+                                    }else{
+                                        // false = align right.
+                                        var y = (h/2)-((rightPortCount-1)/2)*13; // middle - total length of port on edge.
+                                        y = ((y+13*rPortInd++)-5);
+                                        var x = w - 5;
+                                    }
+                                    // should i align right or bottom.
+                                    port.attr("transform", function(d) { return "translate("+x+","+y+")";});
                                 });
+
                             }
                             thisNode.selectAll("text.node_label").text(function(d,i){
                                     var l = "";
@@ -2195,10 +2333,20 @@ RED.view = (function() {
                             thisNode.selectAll(".node_error")
                                 .attr("x",function(d){return d.w-10-((d.changed||d.moved)?13:0)})
                                 .classed("hidden",function(d) { return d.valid; });
-
+// TODO EMILE - adjust alignment edge of input node.
+                            var inputAlignments = d.inputAlignments;
+                            var nh = d.h;
+                            var nw = d.w;
                             thisNode.selectAll(".port_input").each(function(d,i) {
                                     var port = d3.select(this);
-                                    port.attr("transform",function(d){return "translate(-5,"+((d.h/2)-5)+")";})
+                                    var x = -5;
+                                    var y = ((nh/2)-5);
+                                    if(inputAlignments != undefined && inputAlignments[0] == true)
+                                    {
+                                        x = ((nw/2)-5);
+                                        y = -5;
+                                    }
+                                    port.attr("transform",function(d){return "translate("+x+","+y+")";})
                             });
 
                             thisNode.selectAll(".node_icon").attr("y",function(d){return (d.h-d3.select(this).attr("height"))/2;});
@@ -2332,35 +2480,120 @@ RED.view = (function() {
                 var link = d3.select(this);
                 if (d.added || d===selected_link || d.selected || dirtyNodes[d.source.id] || dirtyNodes[d.target.id]) {
                     link.attr("d",function(d){
+                        // TODO Emile - Update x1,y1, x2,y2 points for left/right top/bottom positions.
                         var numOutputs = d.source.outputs || 1;
                         var sourcePort = d.sourcePort || 0;
-                        var y = -((numOutputs-1)/2)*13 +13*sourcePort;
+                        var sourcePortCount = countOutputPorts(d.source);// sources are always output nodes.
 
-                        var dy = d.target.y-(d.source.y+y);
-                        var dx = (d.target.x-d.target.w/2)-(d.source.x+d.source.w/2);
-                        var delta = Math.sqrt(dy*dy+dx*dx);
-                        var scale = lineCurveScale;
-                        var scaleY = 0;
-                        if (delta < node_width) {
-                            scale = 0.75-0.75*((node_width-delta)/node_width);
-                        }
+                        // var y = -((numOutputs-1)/2)*13 +13*sourcePort;
+                        //
+                        // var dy = d.target.y-(d.source.y+y);
+                        // var dx = (d.target.x-d.target.w/2)-(d.source.x+d.source.w/2);
+                        // var delta = Math.sqrt(dy*dy+dx*dx);
+                        // var scale = lineCurveScale;
+                        // var scaleY = 0;
+                        // if (delta < node_width) {
+                        //     scale = 0.75-0.75*((node_width-delta)/node_width);
+                        // }
+                        //
+                        // if (dx < 0) {
+                        //     scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
+                        //     if (Math.abs(dy) < 3*node_height) {
+                        //         scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                        //     }
+                        // }
+                        //
+                        // d.x1 = d.source.x+d.source.w/2;
+                        // d.y1 = d.source.y+y;
+                        // d.x2 = d.target.x-d.target.w/2;
+                        // d.y2 = d.target.y;
+                        //
+                        // return "M "+d.x1+" "+d.y1+
+                        //     " C "+(d.x1+scale*node_width)+" "+(d.y1+scaleY*node_height)+" "+
+                        //     (d.x2-scale*node_width)+" "+(d.y2-scaleY*node_height)+" "+
+                        //     d.x2+" "+d.y2;
+                        var x = 0;
+                        var y = 0;
+                        var dx = 0;
+                        var dy = 0;
+                        var node = d.source;
+                        if(node.outputAlignments !== undefined && node.outputAlignments[sourcePort] == true)
+                        {
+                            // align bottom
+                            x = -((sourcePortCount.bottomPortCount-1)/2)*13 +13*getPortPosition(node, sourcePort, true);
+                            y = node_height;
+                            dy = (d.target.y-d.target.h/2)-(d.source.y+d.source.h/2);
+                            dx = d.target.x-(d.source.x+x);
 
-                        if (dx < 0) {
-                            scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
-                            if (Math.abs(dy) < 3*node_height) {
-                                scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                            var delta = Math.sqrt(dy*dy+dx*dx);
+                            var scale = lineCurveScale;
+                            var scaleX = 0;
+                            if (delta < node_height) {
+                                scale = 0.75-0.75*((node_height-delta)/node_height);
                             }
+
+                            if (dy < 0) {
+                                scale += 2*(Math.min(5*node_height,Math.abs(dy))/(5*node_height));
+                                if (Math.abs(dx) < 3*node_width) {
+                                    scaleX = ((dx>0)?0.5:-0.5)*(((3*node_width)-Math.abs(dx))/(3*node_width))*(Math.min(node_height,Math.abs(dy))/(node_height)) ;
+                                }
+                            }
+
+                            d.x1 = d.source.x + x;
+                            d.y1 = d.source.y + d.source.h / 2;
+
+                            if(d.target.inputAlignments !== undefined && d.target.inputAlignments[0] == true)
+                            {
+                                d.x2 = d.target.x;
+                                d.y2 = d.target.y - d.target.h / 2;
+                            }else{
+                                d.x2 = d.target.x-d.target.w/2;
+                                d.y2 = d.target.y;
+                            }
+                            return "M "+d.x1+" "+d.y1+
+                                " C "+(d.x1+scaleX*node_width)+" "+(d.y1+scale*node_height)+" "+
+                                (d.x2-scaleX*node_width)+" "+(d.y2-scale*node_height)+" "+
+                                d.x2+" "+d.y2;
+
+                        }else{
+                            // align right
+                            x = node_width;
+                            y = -((sourcePortCount.rightPortCount-1)/2)*13 +13*getPortPosition(node, sourcePort, false);
+                            dy = d.target.y-(d.source.y+y);
+                            dx = (d.target.x-d.target.w/2)-(d.source.x+d.source.w/2);
+
+                            var delta = Math.sqrt(dy*dy+dx*dx);
+                            var scale = lineCurveScale;
+                            var scaleY = 0;
+                            if (delta < node_width) {
+                                scale = 0.75-0.75*((node_width-delta)/node_width);
+                            }
+
+                            if (dx < 0) {
+                                scale += 2*(Math.min(5*node_width,Math.abs(dx))/(5*node_width));
+                                if (Math.abs(dy) < 3*node_height) {
+                                    scaleY = ((dy>0)?0.5:-0.5)*(((3*node_height)-Math.abs(dy))/(3*node_height))*(Math.min(node_width,Math.abs(dx))/(node_width)) ;
+                                }
+                            }
+
+                            d.x1 = d.source.x+d.source.w/2;
+                            d.y1 = d.source.y+y;
+
+                            if(d.target.inputAlignments !== undefined && d.target.inputAlignments[0] == true)
+                            {
+                                d.x2 = d.target.x;
+                                d.y2 = d.target.y - d.target.h / 2;
+                            }else{
+                                d.x2 = d.target.x-d.target.w/2;
+                                d.y2 = d.target.y;
+                            }
+
+                            return "M "+d.x1+" "+d.y1+
+                                " C "+(d.x1+scale*node_width)+" "+(d.y1+scaleY*node_height)+" "+
+                                (d.x2-scale*node_width)+" "+(d.y2-scaleY*node_height)+" "+
+                                d.x2+" "+d.y2;
                         }
 
-                        d.x1 = d.source.x+d.source.w/2;
-                        d.y1 = d.source.y+y;
-                        d.x2 = d.target.x-d.target.w/2;
-                        d.y2 = d.target.y;
-
-                        return "M "+d.x1+" "+d.y1+
-                            " C "+(d.x1+scale*node_width)+" "+(d.y1+scaleY*node_height)+" "+
-                            (d.x2-scale*node_width)+" "+(d.y2-scaleY*node_height)+" "+
-                            d.x2+" "+d.y2;
                     });
                 }
             })

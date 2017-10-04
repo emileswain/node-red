@@ -1,0 +1,66 @@
+<script type="text/javascript">
+
+    RED.nodes.registerType('Intent-selector', {
+        category: 'AKQA',
+        color: '#FFF0F0',
+        defaults: {
+            name: {value: ""},
+            intent:{value:""}
+        },
+        credentials: {},
+        inputs: 1,
+        outputs: 1,
+        icon: "file.png",
+        label: function () {
+            return (this.name || "Intent-selector" ) + (this.intent ? "-"+this.intent : "-none" );
+        },
+        oneditsave: function() {
+            var selectField = $('#intent');
+            this.intent = selectField.val();
+        },
+        oneditprepare: function() {
+            var value = this.intent;
+            var selectField = $('#intent');
+            var candidateNodes = RED.nodes.filterNodes({type:"conversational-intent"});
+            var operators = candidateNodes;
+            for (var d in operators) {
+                var node = operators[d];
+                var label = node.intentType;
+                var intentType = node.intentType;
+                var selected = intentType == value ? 'selected' : null;
+                selectField.append($("<option " + (selected ? "selected='"+selected+"' " : "" )+ "></option>").val(intentType).text(label));
+            }
+        },
+        oneditresize: function() {
+//            var dialogForm = $('#dialog-form');
+//            var rowName = $('.form-row-name', dialogForm);
+//            var rowLabel = $('.form-row-label', dialogForm);
+//            var height = dialogForm.height() - rowName.height() - rowLabel.height() - 50;
+//            $('#node-input-scopes-container').editableList('height', height);
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="Intent-selector">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <select id='intent'/>
+    </div>
+    <div class="form-tips"><b>Tip:</b> This is here to help.</div>
+
+</script>
+
+<script type="text/x-red" data-help-name="Intent-selector">
+   <p>Some useful help text to introduce the node.</p>
+   <h3>Outputs</h3>
+       <dl class="message-properties">
+       <dt>payload
+           <span class="property-type">string | buffer</span>
+       </dt>
+   <h3>Details</h3>
+   <p>Some more information about the node.</p>
+
+</script>
