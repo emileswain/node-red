@@ -21,7 +21,7 @@ RED.palette = (function() {
 
     var categoryContainers = {};
 
-    function createCategoryContainer(category, label){
+    function createCategoryContainer(category, label) {
         label = (label || category).replace(/_/g, " ");
         var catDiv = $('<div id="palette-container-'+category+'" class="palette-category palette-close hide">'+
             '<div id="palette-header-'+category+'" class="palette-header"><i class="expanded fa fa-angle-down"></i><span>'+label+'</span></div>'+

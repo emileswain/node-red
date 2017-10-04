@@ -136,6 +136,7 @@ module.exports = function(grunt) {
                     "editor/js/ui/diff.js",
                     "editor/js/ui/keyboard.js",
                     "editor/js/ui/workspaces.js",
+                    "editor/js/ui/portUtils.js",
                     "editor/js/ui/view.js",
                     "editor/js/ui/sidebar.js",
                     "editor/js/ui/palette.js",
