@@ -666,9 +666,9 @@ RED.editor = (function() {
             result.addClass("");
             var id = "node-label-form-"+type+"-"+index;
             $('<label>',{for:id}).html((index+1)+".").appendTo(result);
+// TODO PORT-FLOW add alignment checkbox // NO SUPPORTED/MAINTAINED.
             var portLayout = $('<input />', { type: 'checkbox', id: 'cb-'+id, checked: portAlignment}).css("width","20px").appendTo(result);
             var input = $('<input>',{type:"text",id:id, placeholder: placeHolder}).val(value).appendTo(result);
-            // EMILE - add layout checkbox for ports
 
             var clear = $('<button class="editor-button editor-button-small"><i class="fa fa-times"></i></button>').appendTo(result);
             clear.click(function(evt) {
@@ -690,7 +690,7 @@ RED.editor = (function() {
 
         var inputLabels = node.inputLabels || [];
         var outputLabels = node.outputLabels || [];
-        // EMILE manage port alignments
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
         var inputAlignments = node.inputAlignments || [];
         var outputAlignments = node.outputAlignments || [];
 
@@ -702,6 +702,7 @@ RED.editor = (function() {
         var inputsDiv = $("#node-label-form-inputs");
         if (inputCount > 0) {
             for (i=0;i<inputCount;i++) {
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
                 buildLabelRow("input",i,inputLabels[i],inputPlaceholder, inputAlignments[i]).appendTo(inputsDiv);
             }
         } else {
@@ -711,6 +712,7 @@ RED.editor = (function() {
         var outputsDiv = $("#node-label-form-outputs");
         if (outputCount > 0) {
             for (i=0;i<outputCount;i++) {
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
                 buildLabelRow("output",i,outputLabels[i],outputPlaceholder, outputAlignments[i]).appendTo(outputsDiv);
             }
         } else {
@@ -928,7 +930,7 @@ RED.editor = (function() {
                         //     }
                         // }
                         var removedLinks = updateNodeProperties(editing_node,outputMap);
-// TODO EMILE add port alignment check.
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
                         var inputLabels = $("#node-label-form-inputs").children().find("input[type='text']");
                         var inputAlignments = $("#node-label-form-inputs").children().find("input[type='checkbox']");
 
@@ -970,10 +972,9 @@ RED.editor = (function() {
                             changed = true;
                         }
 // PORT ALIGNMENT LABELS.
-                        // TODO EMile - added output port alignment update value.
+// TODO PORT-FLOW Configure Output Ports // NO SUPPORTED/MAINTAINED.
                         newValue = new Array(editing_node.outputs);
                         outputAlignments.each(function (){
-                            console.log("Component = "+ $(this) + "  == Value : "+$(this).val());
                             var index = $(this).attr('id').substring(26);// cb-node-label-form-output-<index>
                             if (outputMap && outputMap.hasOwnProperty(index)) {
                                 index = parseInt(outputMap[index]);
@@ -982,7 +983,6 @@ RED.editor = (function() {
                                 }
                             }
                             var v = $(this).is(":checked");
-                            console.log("Component = "+ $(this) + "  == Value : "+v);
                             newValue[index] = v;
                         })
                         if ((editing_node.outputAlignments === undefined ) ||
@@ -992,7 +992,7 @@ RED.editor = (function() {
                             changed = true;
                         }
 
-// TODO EMile - added Input port alignment update value.
+// TODO PORT-FLOW Configure Input Ports // NO SUPPORTED/MAINTAINED.
                         newValue = new Array(editing_node.inputs);
                         inputAlignments.each(function (){
                             var index = $(this).attr('id').substring(25);// cb-node-label-form-input-<index>

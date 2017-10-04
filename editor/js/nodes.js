@@ -349,6 +349,7 @@ RED.nodes = (function() {
             paletteLabel: function() { return RED.nodes.subflow(sf.id).name },
             inputLabels: function(i) { return sf.inputLabels?sf.inputLabels[i]:null },
             outputLabels: function(i) { return sf.outputLabels?sf.outputLabels[i]:null },
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
             inputAlignments: function(i) { return sf.inputAlignments?sf.inputAlignments[i]:[] },
             outputAlignments: function(i) { return sf.outputAlignments?sf.outputAlignments[i]:[]},
             set:{
@@ -488,7 +489,7 @@ RED.nodes = (function() {
                 node.outputLabels = n.outputLabels.slice();
             }
 
-// TODO EMILE add outputAlignments // urgh, this isn't great.
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
             if (n.inputs > 0 && n.inputAlignments && !/^\s*$/.test(n.inputAlignments.join("")))  {
                 node.inputAlignments = n.inputAlignments.slice();
             }
@@ -540,7 +541,7 @@ RED.nodes = (function() {
             node.outputLabels = n.outputLabels.slice();
         }
 
-        // TODO EMILE add outputAlignments // urgh, this isn't great.
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
         if (node.in.inputs > 0 && n.inputAlignments && !/^\s*$/.test(n.inputAlignments.join("")))  {
             node.inputAlignments = n.inputAlignments.slice();
         }
@@ -934,6 +935,7 @@ RED.nodes = (function() {
                         wires:n.wires,
                         inputLabels: n.inputLabels,
                         outputLabels: n.outputLabels,
+// TODO PORT-FLOW add outputAlignments // NO SUPPORTED/MAINTAINED.
                         inputAlignments : n.inputAlignments ,
                         outputAlignments : n.outputAlignments,
                         changed:false,

@@ -739,7 +739,7 @@ RED.view = (function() {
             }
             mousePos = mouse_position;
             for (i=0;i<drag_lines.length;i++) {
-// TODO Emile update dragging wires
+// TODO PORT-FLOW Draw Mouse Lines // NO SUPPORTED/MAINTAINED.
                 var drag_line = drag_lines[i];
                 var sourcePort = drag_line.port;
                 var node = mousedown_node;
@@ -2106,7 +2106,7 @@ RED.view = (function() {
 
                             d._ports.exit().remove();
                             if (d._ports) {
-// TODO EMILE - Align Ports
+// TODO PORT-FLOW Draw Output Ports // NO SUPPORTED/MAINTAINED.
                                 var portPositions = RED.portUtils.calculatePortPositions(d,0,0);
                                 d._ports.each(function(d,i) {
                                     var port = d3.select(this);
@@ -2173,7 +2173,7 @@ RED.view = (function() {
                             thisNode.selectAll(".node_error")
                                 .attr("x",function(d){return d.w-10-((d.changed||d.moved)?13:0)})
                                 .classed("hidden",function(d) { return d.valid; });
-// TODO EMILE - Align Input Port
+// TODO PORT-FLOW Draw Input ports // NO SUPPORTED/MAINTAINED.
                             var portPositions = RED.portUtils.calculatePortPositions(d,0,0);
                             thisNode.selectAll(".port_input").each(function(d,i) {
                                     var port = d3.select(this);
@@ -2313,7 +2313,7 @@ RED.view = (function() {
                 var link = d3.select(this);
                 if (d.added || d===selected_link || d.selected || dirtyNodes[d.source.id] || dirtyNodes[d.target.id]) {
                     link.attr("d",function(d){
-// TODO Emile - align wires
+// TODO PORT-FLOW Draw Flow Wires // NO SUPPORTED/MAINTAINED.
                         var sourcePort = d.sourcePort || 0;
                         return RED.portUtils.drawWire(d.source, d.target, sourcePort);
 
