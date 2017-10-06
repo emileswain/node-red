@@ -471,7 +471,8 @@ RED.nodes = (function() {
             node.x = n.x;
             node.y = n.y;
             node.wires = [];
-            for(var i=0;i<n.outputs;i++) {
+            var outCount = n.outputs || n._def.outputs;
+            for(var i=0;i<outCount;i++) {
                 node.wires.push([]);
             }
             var wires = links.filter(function(d){return d.source === n;});
@@ -1018,8 +1019,8 @@ RED.nodes = (function() {
                             node.type = "unknown";
                         }
                         if (node._def.category != "config") {
-                            node.inputs = n.inputs||node._def.inputs;
-                            node.outputs = n.outputs||node._def.outputs;
+                            node.inputs = n.inputs||node._def.inputs || [];
+                            node.outputs = n.outputs||node._def.outputs || [];
                             for (d in node._def.defaults) {
                                 if (node._def.defaults.hasOwnProperty(d)) {
                                     node[d] = n[d];
