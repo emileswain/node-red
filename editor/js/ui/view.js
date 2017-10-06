@@ -16,6 +16,19 @@
 
 
 RED.view = (function() {
+    // Node Size/Style Parameters
+    var buttonWidth = 50;
+    var minNodeWidth = 150;
+    var setNodeSize = function (d, l)
+    {
+        var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+        var padding = 10;
+        d.w = textSize[0] + padding*2 + buttonWidth;
+        d.h = textSize[1] + padding*2;
+        var portHeights = (d._def.outputs * 13 )+ padding*2
+        d.h = Math.max(d.h, portHeights)
+    }
+
     var space_width = 5000,
         space_height = 5000,
         lineCurveScale = 0.75,
@@ -1304,20 +1317,36 @@ RED.view = (function() {
     }
 
 
-    function calculateTextWidth(str, className, offset) {
-        return calculateTextDimensions(str,className,offset,0)[0];
+    function calculateTextWidth(str, className, offset,wrapWidth) {
+        return calculateTextDimensions(str,className,offset,0,wrapWidth)[0];
     }
 
-    function calculateTextDimensions(str,className,offsetW,offsetH) {
-        var sp = document.createElement("span");
+    function calculateTextDimensions(str,className,offsetW,offsetH, wrapWidth) {
+        var sp = document.createElement("div");
+
         sp.className = className;
         sp.style.position = "absolute";
         sp.style.top = "-1000px";
+        sp.style.top = "10px"
         sp.textContent = (str||"");
+        sp.style.height = "auto";
+        sp.style.zIndex = 1000;
+        if(wrapWidth){
+            sp.style.width = wrapWidth
+            sp.style["max-width"] = wrapWidth + "px"
+        }
+        else {
+            sp.style.width = "auto";
+        }
         document.body.appendChild(sp);
         var w = sp.offsetWidth;
         var h = sp.offsetHeight;
-        document.body.removeChild(sp);
+        // if(className != "node_label")
+        // {
+           document.body.removeChild(sp);
+        //}
+
+
         return [offsetW+w,offsetH+h];
     }
 
@@ -1550,7 +1579,7 @@ RED.view = (function() {
                         .attr("text-anchor",portType===PORT_TYPE_INPUT?"end":"start")
                         .text(l)
                 });
-            },150);
+            },151);
         }
         port.classed("port_hovered",active);
     }
@@ -1863,9 +1892,13 @@ RED.view = (function() {
                     if (isLink) {
                         d.w = node_height;
                     } else {
-                        d.w = Math.max(node_width,20*(Math.ceil((calculateTextWidth(l, "node_label", 50)+(d._def.inputs>0?7:0))/20)) );
+                        //d.w = Math.max(node_width,20*(Math.ceil((calculateTextWidth(l, "node_label", 50)+(d._def.inputs>0?7:0))/20)) );
                     }
-                    d.h = Math.max(node_height,(d.outputs||0) * 15);
+                    //d.h = Math.max(node_height,(d.outputs||0) * 15);
+
+// TODO Node Design - calculate node size.
+                    setNodeSize(d, l);
+// END
 
                     if (d._def.badge) {
                         var badge = node.append("svg:g").attr("class","node_badge_group");
@@ -2017,7 +2050,18 @@ RED.view = (function() {
                         icon_group.style("pointer-events","none");
                     }
                     if (!isLink) {
-                        var text = node.append("svg:text").attr("class","node_label").attr("x", 38).attr("dy", ".35em").attr("text-anchor","start");
+// TODO Node Design - Support wrapped text.
+                        var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+                        var fo = node.append('foreignObject')
+                            .attr("text-anchor","start")
+                            .attr("requiredFeatures","http://www.w3.org/TR/SVG11/feature#Extensibility")
+                            .attr("class","node_label")
+                            .attr("width", textSize[0]+10)
+                            .attr("height", textSize[1])
+                            .attr("x", 38)
+                            .attr("y", (d.h/2 - textSize[1]/2))
+                        fo.append('xhtml:div').attr("class","node_label").text(l);
+// END
                         if (d._def.align) {
                             text.attr("class","node_label node_label_"+d._def.align);
                             if (d._def.align === "right") {
@@ -2051,10 +2095,7 @@ RED.view = (function() {
                         //if (d.x < -50) deleteSelection();  // Delete nodes if dragged back to palette
                         if (!isLink && d.resize) {
                             var l = RED.utils.getNodeLabel(d);
-                            var ow = d.w;
-                            d.w = Math.max(node_width,20*(Math.ceil((calculateTextWidth(l, "node_label", 50)+(d._def.inputs>0?7:0))/20)) );
-                            d.h = Math.max(node_height,(d.outputs||0) * 15);
-                            d.x += (d.w-ow)/2;
+                            setNodeSize(d, l);
                             d.resize = false;
                         }
                         var thisNode = d3.select(this);
