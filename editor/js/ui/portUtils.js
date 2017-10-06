@@ -50,10 +50,10 @@ RED.portUtils = (function() {
         // ************************************
         // Originally added below to try and ensure outputs had a value, but fixed an issue in nodes.js where by having defined a new node and added it to a flow
         // that a subsequent update to control the number of outputs would break the loading and saving of the flow again.
-        // if(node.outputs == undefined)
-        // {
-        //     positions.out.push({x:X + nw - pW/2,y: Y + nh/2 - (1 * pS)/2 + (pS*0), vertical:false});
-        // }
+        if(node.outputs == undefined)
+        {
+            positions.out.push({x:X + nw - pW/2,y: Y + nh/2 - (1 * pS)/2 + (pS*0), vertical:false});
+        }
 
         for (var i=0; i< node.outputs; i++)
         {
