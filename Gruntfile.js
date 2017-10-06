@@ -23,6 +23,10 @@ module.exports = function(grunt) {
     if (flowFile) {
         nodemonArgs.push(flowFile);
     }
+    var userDir = grunt.option('userDir');
+    if(userDir){
+        nodemonArgs.push("--userDir="+userDir);
+    }
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
