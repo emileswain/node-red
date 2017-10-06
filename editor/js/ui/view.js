@@ -1550,7 +1550,7 @@ RED.view = (function() {
                         .attr("text-anchor",portType===PORT_TYPE_INPUT?"end":"start")
                         .text(l)
                 });
-            },500);
+            },150);
         }
         port.classed("port_hovered",active);
     }
@@ -1958,6 +1958,7 @@ RED.view = (function() {
                         var icon_group = node.append("g")
                             .attr("class","node_icon_group")
                             .attr("x",0).attr("y",0);
+
 
                         var icon_shade = icon_group.append("rect")
                             .attr("x",0).attr("y",0)
