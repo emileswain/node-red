@@ -2123,11 +2123,12 @@ RED.view = (function() {
                                 inputPorts.remove();
                                 //nodeLabel.attr("x",30);
                             } else if (d.inputs === 1 && inputPorts.empty()) {
-                                var inputGroup = thisNode.append("g").attr("class","port_input").each(function (dd,i){
+                                var inputGroup = thisNode.append("g").attr("class","port_input")
+// TODO Port Labels
+                                    .each(function (dd,i){
                                     var portsvg = d3.select(this);
                                     RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_INPUT,i);
                                 });
-
 
                                 inputGroup.append("rect").attr("class","port").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
                                     .on("mousedown",function(d){portMouseDown(d,PORT_TYPE_INPUT,0);})
@@ -2136,14 +2137,18 @@ RED.view = (function() {
                                     .on("touchend",function(d){portMouseUp(d,PORT_TYPE_INPUT,0);} )
                                     .on("mouseover",function(d){portMouseOver(d3.select(this),d,PORT_TYPE_INPUT,0);})
                                     .on("mouseout",function(d) {portMouseOut(d3.select(this),d,PORT_TYPE_INPUT,0);});
-
-
+                            }else if (d.inputs === 1){
+// TODO Port Labels
+                                inputPorts.selectAll("text.wire_label").text(function (dd,i){
+                                    return getPortLabel(d, PORT_TYPE_INPUT , 0);
+                                })
                             }
 
                             var numOutputs = d.outputs;
                             d.ports = d.ports || d3.range(numOutputs);
                             d._ports = thisNode.selectAll(".port_output").data(d.ports);
                             var output_group = d._ports.enter().append("g").attr("class","port_output")
+// TODO Port Labels
                                 .each(function (dd,i){
                                     var portsvg = d3.select(this);
                                     RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_OUTPUT,i);
@@ -2162,11 +2167,15 @@ RED.view = (function() {
                             if (d._ports) {
 // TODO PORT-FLOW Draw Output Ports // NO SUPPORTED/MAINTAINED.
                                 var portPositions = RED.portUtils.calculatePortPositions(d,0,0);
-                                d._ports.each(function(d,i) {
+                                d._ports.each(function(dd,i) {
                                     var port = d3.select(this);
                                     var x = portPositions.out[i].x;
                                     var y = portPositions.out[i].y;
                                     port.attr("transform", function(d) { return "translate("+x+","+y+")";});
+// TODO Port Labels
+                                    port.selectAll("text.wire_label").text(function (dd,ii){
+                                        return getPortLabel(d, PORT_TYPE_OUTPUT , i);
+                                    })
                                 });
 
                             }
