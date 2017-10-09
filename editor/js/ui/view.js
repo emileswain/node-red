@@ -2123,7 +2123,12 @@ RED.view = (function() {
                                 inputPorts.remove();
                                 //nodeLabel.attr("x",30);
                             } else if (d.inputs === 1 && inputPorts.empty()) {
-                                var inputGroup = thisNode.append("g").attr("class","port_input");
+                                var inputGroup = thisNode.append("g").attr("class","port_input").each(function (dd,i){
+                                    var portsvg = d3.select(this);
+                                    RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_INPUT,i);
+                                });
+
+
                                 inputGroup.append("rect").attr("class","port").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
                                     .on("mousedown",function(d){portMouseDown(d,PORT_TYPE_INPUT,0);})
                                     .on("touchstart",function(d){portMouseDown(d,PORT_TYPE_INPUT,0);})
@@ -2131,12 +2136,18 @@ RED.view = (function() {
                                     .on("touchend",function(d){portMouseUp(d,PORT_TYPE_INPUT,0);} )
                                     .on("mouseover",function(d){portMouseOver(d3.select(this),d,PORT_TYPE_INPUT,0);})
                                     .on("mouseout",function(d) {portMouseOut(d3.select(this),d,PORT_TYPE_INPUT,0);});
+
+
                             }
 
                             var numOutputs = d.outputs;
                             d.ports = d.ports || d3.range(numOutputs);
                             d._ports = thisNode.selectAll(".port_output").data(d.ports);
-                            var output_group = d._ports.enter().append("g").attr("class","port_output");
+                            var output_group = d._ports.enter().append("g").attr("class","port_output")
+                                .each(function (dd,i){
+                                    var portsvg = d3.select(this);
+                                    RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_OUTPUT,i);
+                                });
 
                             output_group.append("rect").attr("class","port").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
                                 .on("mousedown",(function(){var node = d; return function(d,i){portMouseDown(node,PORT_TYPE_OUTPUT,i);}})() )
@@ -2144,7 +2155,8 @@ RED.view = (function() {
                                 .on("mouseup",(function(){var node = d; return function(d,i){portMouseUp(node,PORT_TYPE_OUTPUT,i);}})() )
                                 .on("touchend",(function(){var node = d; return function(d,i){portMouseUp(node,PORT_TYPE_OUTPUT,i);}})() )
                                 .on("mouseover",(function(){var node = d; return function(d,i){portMouseOver(d3.select(this),node,PORT_TYPE_OUTPUT,i);}})())
-                                .on("mouseout",(function(){var node = d; return function(d,i) {portMouseOut(d3.select(this),node,PORT_TYPE_OUTPUT,i);}})());
+                                .on("mouseout",(function(){var node = d; return function(d,i) {portMouseOut(d3.select(this),node,PORT_TYPE_OUTPUT,i);}})())
+
 
                             d._ports.exit().remove();
                             if (d._ports) {
@@ -2225,6 +2237,8 @@ RED.view = (function() {
                                     var y = portPositions.in[i].y;
                                     port.attr("transform",function(d){return "translate("+x+","+y+")";})
                             });
+
+
 
                             thisNode.selectAll(".node_icon").attr("y",function(d){return (d.h-d3.select(this).attr("height"))/2;});
                             thisNode.selectAll(".node_icon_shade").attr("height",function(d){return d.h;});
@@ -2349,6 +2363,8 @@ RED.view = (function() {
                 l.append("svg:path").attr("class","link_line link_path")
                     .classed("link_link", function(d) { return d.link })
                     .classed("link_subflow", function(d) { return !d.link && activeSubflow });
+
+
             });
 
             link.exit().remove();

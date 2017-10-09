@@ -140,6 +140,28 @@ RED.portUtils = (function() {
         return wire
     }
 
+    var getOutputPortLabelPosition = function (outputNode, portIndex)
+    {
+        var outputPositions = calculatePortPositions(outputNode,0,0);
+        var outdata = outputPositions.out[portIndex];
+        var x1 = outputNode.x - outputNode.w/2 + 5 + outdata.x  + (outdata.vertical ? 0 : 10);
+        var y1 = outputNode.y - outputNode.h/2 + 5 + outdata.y + (outdata.vertical ? 10 : 0);
+
+        return {x:x1, y:y1};
+
+    }
+    var getInputPortLabelPosition = function (inputNode, portIndex)
+    {
+        var outputPositions = calculatePortPositions(inputNode,0,0);
+        var indata = outputPositions.out[portIndex];
+        var x1 = inputNode.x - inputNode.w/2 + 5 + indata.x + (indata.vertical ? 0 : -20);
+        var y1 = inputNode.y - inputNode.h/2 + 5 + indata.y+ (indata.vertical ? -20 : 0);
+
+        return {x:x1, y:y1};
+
+    }
+
+
     // Draw from the port on the node to the mouse position.
     var drawMouseWire = function (node, portIndex, mouseX, mouseY)
     {
@@ -168,11 +190,97 @@ RED.portUtils = (function() {
         return wire
     }
 
+    var addPortLabel = function (parentsvg, getPortLabelFunc, node, portType, portIndex)
+    {
+        portIndex = portIndex || 0;
+
+        // // TODO wire Labels
+        //var pos =  RED.portUtils.getInputPortLabelPosition(node,portIndex);
+        var label = getPortLabelFunc(node, portType , portIndex);
+        var labelDimensions = calculateTextDimensions(label, "wire_label", 0,0);
+        var x = 0;
+        var y = 0;
+        var r = 0;
+        if(portType == 1)
+        {
+            // INPUT
+           if(node.inputAlignments && node.inputAlignments[portIndex])
+           {
+               // TOP
+               x = 0;
+               y = 0; // minus height of text.
+           }else {
+               // LEFT
+               x = -labelDimensions[0];
+               y = labelDimensions[1]/2 ;
+           }
+        }else{
+            // OUTPUT
+            if(node.outputAlignments && node.outputAlignments[portIndex])
+            {
+                // ALIGN BOTTOM.
+                x = 15;
+                y = 0;//10+labelDimensions[1];
+                r = 45;
+            }else {
+                // ALIGN RIGHT.
+                x = +15;
+                y = labelDimensions[1]/2;
+            }
+        }
+
+        var text = parentsvg.append("svg:text")
+            .attr("class","wire_label")
+            .attr('transform', 'rotate('+r+')')
+            .attr("x",x)
+            .attr("y",y)
+            .style("font-size","10px")
+            .text(label);
+
+
+    }
+
+    var calculateTextWidth = function (str, className, offset,wrapWidth) {
+        return calculateTextDimensions(str,className,offset,0,wrapWidth)[0];
+    }
+
+    var calculateTextDimensions = function calculateTextDimensions(str,className,offsetW,offsetH, wrapWidth) {
+        var sp = document.createElement("div");
+
+        sp.className = className;
+        sp.style.position = "absolute";
+        sp.style.top = "-1000px";
+        sp.style.top = "10px"
+        sp.textContent = (str||"");
+        sp.style.height = "auto";
+        sp.style.zIndex = 1000;
+        if(wrapWidth){
+            sp.style.width = wrapWidth
+            sp.style["max-width"] = wrapWidth + "px"
+        }
+        else {
+            sp.style.width = "auto";
+        }
+        document.body.appendChild(sp);
+        var w = sp.offsetWidth;
+        var h = sp.offsetHeight;
+        // if(className != "node_label")
+        // {
+        document.body.removeChild(sp);
+        //}
+
+
+        return [offsetW+w,offsetH+h];
+    }
+
     return {
         getEdgeIndex: getEdgeIndex,
         countOutputPorts: countOutputPorts,
         calculatePortPositions:calculatePortPositions,
         drawWire:drawWire,
-        drawMouseWire:drawMouseWire
+        drawMouseWire:drawMouseWire,
+        getInputPortLabelPosition:getInputPortLabelPosition,
+        getOutputPortLabelPosition: getOutputPortLabelPosition,
+        addPortLabel:addPortLabel
     }
 })();
