@@ -25,7 +25,7 @@ RED.view = (function() {
         var padding = 10;
         d.w = textSize[0] + padding*2 + buttonWidth;
         d.h = textSize[1] + padding*2;
-        var portHeights = (d._def.outputs * 13 )+ padding*2
+        var portHeights = ((d.outputs || d._def.outputs) * 13 )+ padding*2
         d.h = Math.max(d.h, portHeights)
     }
 
@@ -2093,8 +2093,8 @@ RED.view = (function() {
                         var isLink = d.type === "link in" || d.type === "link out";
                         dirtyNodes[d.id] = d;
                         //if (d.x < -50) deleteSelection();  // Delete nodes if dragged back to palette
+                        var l = RED.utils.getNodeLabel(d);
                         if (!isLink && d.resize) {
-                            var l = RED.utils.getNodeLabel(d);
                             setNodeSize(d, l);
                             d.resize = false;
                         }
@@ -2158,7 +2158,9 @@ RED.view = (function() {
                                 });
 
                             }
-                            thisNode.selectAll("text.node_label").text(function(d,i){
+                            var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+
+                            thisNode.selectAll("div.node_label").text(function(d,i){
                                     var l = "";
                                     if (d._def.label) {
                                         l = d._def.label;
@@ -2172,7 +2174,8 @@ RED.view = (function() {
                                     }
                                     return l;
                                 })
-                                .attr("y", function(d){return (d.h/2)-1;})
+                                //.attr("y", function(d){return (d.h/2)-1;})
+                                .attr("y", function(d){return (d.h/2 - textSize[1]/2);})
                                 .attr("class",function(d){
                                     var s = "";
                                     if (d._def.labelStyle) {
@@ -2185,8 +2188,7 @@ RED.view = (function() {
                                         }
                                         s = " "+s;
                                     }
-                                    return "node_label"+
-                                    (d._def.align?" node_label_"+d._def.align:"")+s;
+                                    return "node_label"+(d._def.align?" node_label_"+d._def.align:"")+s;
                             });
 
                             if (d._def.icon) {
