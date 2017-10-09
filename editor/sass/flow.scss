@@ -218,7 +218,7 @@
 
 .link_line {
     stroke: $link-color;
-    stroke-width: 3;
+    stroke-width: 1;
     fill: none;
     pointer-events: none;
 }
@@ -249,7 +249,7 @@
 
 .link_outline {
     stroke: #fff;
-    stroke-width: 4;
+    stroke-width: 2;
     cursor: crosshair;
     fill: none;
     pointer-events: none;
@@ -257,7 +257,7 @@
 .link_background {
     stroke: #fff;
     opacity: 0;
-    stroke-width: 20;
+    stroke-width: 3;
     cursor: crosshair;
     fill: none;
 }
