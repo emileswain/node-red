@@ -2060,7 +2060,8 @@ RED.view = (function() {
                             .attr("height", textSize[1])
                             .attr("x", 38)
                             .attr("y", (d.h/2 - textSize[1]/2))
-                        fo.append('xhtml:div').attr("class","node_label").text(l);
+                        var text = fo.append('xhtml:div')
+                            text.attr("class","node_label").text(l);
 // END
                         if (d._def.align) {
                             text.attr("class","node_label node_label_"+d._def.align);
