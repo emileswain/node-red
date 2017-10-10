@@ -557,6 +557,9 @@ RED.editor = (function() {
 
     function refreshLabelForm(container,node) {
 
+        var inputAlignments = node.inputAlignments || [];
+        var outputAlignments = node.outputAlignments || [];
+
         var inputPlaceholder = node._def.inputLabels?RED._("editor.defaultLabel"):RED._("editor.noDefaultLabel");
         var outputPlaceholder = node._def.outputLabels?RED._("editor.defaultLabel"):RED._("editor.noDefaultLabel");
 
@@ -576,7 +579,7 @@ RED.editor = (function() {
                 $(children[0]).remove();
             }
             for (i = childCount;i<inputCount;i++) {
-                buildLabelRow("input",i,"",inputPlaceholder).appendTo(inputsDiv);
+                buildLabelRow("input",i,"",inputPlaceholder,inputAlignments[i]).appendTo(inputsDiv);
             }
         } else if (childCount > inputCount) {
             for (i=inputCount;i<childCount;i++) {
@@ -611,7 +614,7 @@ RED.editor = (function() {
                         $(children[0]).remove();
                         childCount = -1;
                     }
-                    row = buildLabelRow("output",p,"",outputPlaceholder);
+                    row = buildLabelRow("output",p,"",outputPlaceholder,outputAlignments[i]);
                 } else {
                     row.detach();
                 }
@@ -646,7 +649,7 @@ RED.editor = (function() {
                 $(children[0]).remove();
             }
             for (i = childCount;i<outputCount;i++) {
-                buildLabelRow("output",i,"").appendTo(outputsDiv);
+                buildLabelRow("output",i,"",outputPlaceholder,outputAlignments[i]).appendTo(outputsDiv);
             }
         } else if (childCount > outputCount) {
             for (i=outputCount;i<childCount;i++) {
