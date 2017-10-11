@@ -299,7 +299,7 @@ module.exports = function(grunt) {
                     args: nodemonArgs,
                     ext: 'js,html,json',
                     watch: [
-                        'red','nodes'
+                        'red','nodes', '/mynodes'
                     ]
                 }
             }
