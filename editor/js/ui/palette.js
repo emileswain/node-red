@@ -182,7 +182,20 @@ RED.palette = (function() {
                 $("#palette-base-category-"+rootCategory).append('<div id="palette-'+category+'"></div>');
             }
 
-            $("#palette-"+category).append(d);
+            var inserted = false;
+            $("#palette-"+category).children().each(function(i){
+                var $self = $(this);
+                var me = $(".palette_label",$self);
+                var nodelabel = me.text();
+                if(nodelabel>=label){
+                    $(d).insertBefore(this);
+                    inserted = true;
+                    return false;
+                }
+            });
+            if(inserted == false)
+                $("#palette-"+category).append(d);
+
             d.onmousedown = function(e) { e.preventDefault(); };
 
             var popover = RED.popover.create({
