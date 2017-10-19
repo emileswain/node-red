@@ -39,7 +39,7 @@ RED.utils = (function() {
             sp.style.width = "auto";
         }
         document.body.appendChild(sp);
-        var w = sp.offsetWidth;
+        var w = sp.offsetWidth + 10; // to accomodate some error in the actual size.
         var h = sp.offsetHeight;
         // if(className != "node_label")
         // {

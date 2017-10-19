@@ -16,54 +16,10 @@
 
 
 RED.view = (function() {
-    // var UIcomment = {};
-    //
-    // UIcomment.create = function (node,d)
-    // {
-    //     var commentNode = node.append("svg:g").attr("class","node_comment_group")
-    //     var commentRect = commentNode.append("rect").attr("class","node_comment_rect")
-    //     var fo = commentNode.append('foreignObject')
-    //     var commentText = fo.append('xhtml:div')
-    // }
-    //
-    // UIcomment.Draw = function (node, d)
-    // {
-    //     if(d._def.defaults && d._def.defaults.comment != null)
-    //     {
-    //         // Calculate Size.
-    //         var commentLabel = d._def.defaults.comment.value;
-    //         var textSize = RED.utils.calculateTextDimensions(commentLabel, "node_comment", 0, 0, d.w);
-    //         var commentHeight = Math.max(d.h, textSize[1]);
-    //         // Get References
-    //         var commentNode = node.select(".node_comment_group")
-    //         var commentRect = node.select(".node_comment_rect")
-    //         var fo = node.select('foreignObject')
-    //         var commentText = node.select('foreignObject div')
-    //         // position
-    //         commentNode.attr("transform",function(d) { return "translate(0,"+d.h+")"; })
-    //         // Draw Rect
-    //         commentRect.attr("rx",5).attr("ry",5)
-    //             .attr("width",d.w)
-    //             .attr("height",commentHeight)
-    //             .attr("fill","#FFFFFF");
-    //         // Size Comment.
-    //         fo.attr("text-anchor","start")
-    //             .attr("requiredFeatures","http://www.w3.org/TR/SVG11/feature#Extensibility")
-    //             .attr("class","node_comment")
-    //             .attr("width", d.w)
-    //             .attr("height", commentHeight)
-    //             .attr("x", 2)
-    //             // .attr("y", (d.h/2 - textSize[1]/2))
-    //             .attr("y", 2);
-    //         console.log("redrawing Comment w: "+d.w);
-    //         // Update Comment.
-    //         commentText.text(commentLabel);
-    //     }
-    // }
+
 
     // Node Size/Style Parameters
     var buttonWidth = 50;
-    var minNodeWidth = 150;
     var minNodeHeight = 30;
     var setNodeSize = function (d, l)
     {
@@ -1905,27 +1861,25 @@ RED.view = (function() {
                     var isLink = d.type === "link in" || d.type === "link out";
                     node.attr("id",d.id);
                     var l = RED.utils.getNodeLabel(d);
-                    if (isLink) {
-                        d.w = node_height;
-                    } else {
-                        //d.w = Math.max(node_width,20*(Math.ceil((calculateTextWidth(l, "node_label", 50)+(d._def.inputs>0?7:0))/20)) );
-                    }
-                    //d.h = Math.max(node_height,(d.outputs||0) * 15);
-
 // TODO Node Design - calculate node size.
                     setNodeSize(d, l);
 // END
+
+                    if (isLink) {
+                        d.w = node_height;
+                    }
+
                     if(d._def.defaults && d._def.defaults.comment != null)
                     {
 
-
-                        RED.utils.commentbelow.create(node,d);
-                        RED.utils.commentbelow.Draw(node,d);
+                        RED.ui.commentbelow.create(node,d);
+                        RED.ui.commentbelow.Draw(node,d);
 
                     }
 
 
                     if (d._def.badge) {
+                        //RED.ui.badge.create();
                         var badge = node.append("svg:g").attr("class","node_badge_group");
                         var badgeRect = badge.append("rect").attr("class","node_badge").attr("rx",5).attr("ry",5).attr("width",40).attr("height",15);
                         badge.append("svg:text").attr("class","node_badge_label").attr("x",35).attr("y",11).attr("text-anchor","end").text(d._def.badge());
@@ -2087,6 +2041,7 @@ RED.view = (function() {
                             .attr("y", (d.h/2 - textSize[1]/2))
                         var text = fo.append('xhtml:div')
                             text.attr("class","node_label").text(l);
+                            text.attr("data:test",textSize[0]+"-"+textSize[1])
 // END
                         if (d._def.align) {
                             text.attr("class","node_label node_label_"+d._def.align);
@@ -2216,7 +2171,7 @@ RED.view = (function() {
                             var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
                             // update foreign object text.
                             thisNode.selectAll(".node_label > foreignobject")
-                                .attr("width", function(d) {return textSize[0]+10}) // Add 10 to stop the text from wrapping when it technically shouldn't.
+                                .attr("width", function(d) {return textSize[0]}) // Add 10 to stop the text from wrapping when it technically shouldn't.
                                 .attr("height", function(d) {return textSize[1]});
                             // update labels.
                             thisNode.selectAll("div.node_label").text(function(d,i){
