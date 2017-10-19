@@ -977,6 +977,7 @@ RED.editor = (function() {
 // PORT ALIGNMENT LABELS.
 // TODO PORT-FLOW Configure Output Ports // NO SUPPORTED/MAINTAINED.
                         newValue = new Array(editing_node.outputs);
+                        newValue.fill(false);
                         outputAlignments.each(function (){
                             var index = $(this).attr('id').substring(26);// cb-node-label-form-output-<index>
                             if (outputMap && outputMap.hasOwnProperty(index)) {
@@ -986,7 +987,7 @@ RED.editor = (function() {
                                 }
                             }
                             var v = $(this).is(":checked");
-                            newValue[index] = v;
+                            newValue[index] = v || false;
                         })
                         if ((editing_node.outputAlignments === undefined ) ||
                             (editing_node.outputAlignments !== undefined && JSON.stringify(newValue) !== JSON.stringify(editing_node.outputAlignments))) {
@@ -997,6 +998,7 @@ RED.editor = (function() {
 
 // TODO PORT-FLOW Configure Input Ports // NO SUPPORTED/MAINTAINED.
                         newValue = new Array(editing_node.inputs);
+                        newValue.fill(false);
                         inputAlignments.each(function (){
                             var index = $(this).attr('id').substring(25);// cb-node-label-form-input-<index>
                             if (outputMap && outputMap.hasOwnProperty(index)) {

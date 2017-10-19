@@ -16,17 +16,66 @@
 
 
 RED.view = (function() {
+    // var UIcomment = {};
+    //
+    // UIcomment.create = function (node,d)
+    // {
+    //     var commentNode = node.append("svg:g").attr("class","node_comment_group")
+    //     var commentRect = commentNode.append("rect").attr("class","node_comment_rect")
+    //     var fo = commentNode.append('foreignObject')
+    //     var commentText = fo.append('xhtml:div')
+    // }
+    //
+    // UIcomment.Draw = function (node, d)
+    // {
+    //     if(d._def.defaults && d._def.defaults.comment != null)
+    //     {
+    //         // Calculate Size.
+    //         var commentLabel = d._def.defaults.comment.value;
+    //         var textSize = RED.utils.calculateTextDimensions(commentLabel, "node_comment", 0, 0, d.w);
+    //         var commentHeight = Math.max(d.h, textSize[1]);
+    //         // Get References
+    //         var commentNode = node.select(".node_comment_group")
+    //         var commentRect = node.select(".node_comment_rect")
+    //         var fo = node.select('foreignObject')
+    //         var commentText = node.select('foreignObject div')
+    //         // position
+    //         commentNode.attr("transform",function(d) { return "translate(0,"+d.h+")"; })
+    //         // Draw Rect
+    //         commentRect.attr("rx",5).attr("ry",5)
+    //             .attr("width",d.w)
+    //             .attr("height",commentHeight)
+    //             .attr("fill","#FFFFFF");
+    //         // Size Comment.
+    //         fo.attr("text-anchor","start")
+    //             .attr("requiredFeatures","http://www.w3.org/TR/SVG11/feature#Extensibility")
+    //             .attr("class","node_comment")
+    //             .attr("width", d.w)
+    //             .attr("height", commentHeight)
+    //             .attr("x", 2)
+    //             // .attr("y", (d.h/2 - textSize[1]/2))
+    //             .attr("y", 2);
+    //         console.log("redrawing Comment w: "+d.w);
+    //         // Update Comment.
+    //         commentText.text(commentLabel);
+    //     }
+    // }
+
     // Node Size/Style Parameters
     var buttonWidth = 50;
     var minNodeWidth = 150;
+    var minNodeHeight = 30;
     var setNodeSize = function (d, l)
     {
-        var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
-        var padding = 10;
-        d.w = textSize[0] + padding*2 + buttonWidth;
-        d.h = textSize[1] + padding*2;
-        var portHeights = ((d.outputs || d._def.outputs) * 13 )+ padding*2
-        d.h = Math.max(d.h, portHeights)
+        var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+        var textPadding = 5*2;
+        d.w = textSize[0] + textPadding + buttonWidth;
+        d.h = Math.max(textSize[1],minNodeHeight) + textPadding;
+        // Work out if port heights is larger than text height.
+        var portPositions = RED.portUtils.countOutputPorts(d);
+
+        var portHeights = (portPositions.rightPortCount * 13 )
+        d.h = Math.max(d.h, portHeights+textPadding)
     }
 
     var space_width = 5000,
@@ -1316,40 +1365,6 @@ RED.view = (function() {
         }
     }
 
-
-    function calculateTextWidth(str, className, offset,wrapWidth) {
-        return calculateTextDimensions(str,className,offset,0,wrapWidth)[0];
-    }
-
-    function calculateTextDimensions(str,className,offsetW,offsetH, wrapWidth) {
-        var sp = document.createElement("div");
-
-        sp.className = className;
-        sp.style.position = "absolute";
-        sp.style.top = "-1000px";
-        sp.style.top = "10px"
-        sp.textContent = (str||"");
-        sp.style.height = "auto";
-        sp.style.zIndex = 1000;
-        if(wrapWidth){
-            sp.style.width = wrapWidth
-            sp.style["max-width"] = wrapWidth + "px"
-        }
-        else {
-            sp.style.width = "auto";
-        }
-        document.body.appendChild(sp);
-        var w = sp.offsetWidth;
-        var h = sp.offsetHeight;
-        // if(className != "node_label")
-        // {
-           document.body.removeChild(sp);
-        //}
-
-
-        return [offsetW+w,offsetH+h];
-    }
-
     function resetMouseVars() {
         mousedown_node = null;
         mouseup_node = null;
@@ -1556,7 +1571,7 @@ RED.view = (function() {
                 var labelHeight = 4;
                 var labelHeights = [];
                 lines.forEach(function(l) {
-                    var labelDimensions = calculateTextDimensions(l, "port_tooltip_label", 8,0);
+                    var labelDimensions = RED.utils.calculateTextDimensions(l, "port_tooltip_label", 8,0);
                     labelWidth = Math.max(labelWidth,labelDimensions[0]);
                     labelHeights.push(0.8*labelDimensions[1]);
                     labelHeight += 0.8*labelDimensions[1];
@@ -1876,6 +1891,7 @@ RED.view = (function() {
                 vis.selectAll(".subflowinput").remove();
             }
 
+
             var node = vis.selectAll(".nodegroup").data(activeNodes,function(d){return d.id});
             node.exit().remove();
 
@@ -1899,6 +1915,15 @@ RED.view = (function() {
 // TODO Node Design - calculate node size.
                     setNodeSize(d, l);
 // END
+                    if(d._def.defaults && d._def.defaults.comment != null)
+                    {
+
+
+                        RED.utils.commentbelow.create(node,d);
+                        RED.utils.commentbelow.Draw(node,d);
+
+                    }
+
 
                     if (d._def.badge) {
                         var badge = node.append("svg:g").attr("class","node_badge_group");
@@ -2051,12 +2076,12 @@ RED.view = (function() {
                     }
                     if (!isLink) {
 // TODO Node Design - Support wrapped text.
-                        var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+                        var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
                         var fo = node.append('foreignObject')
                             .attr("text-anchor","start")
                             .attr("requiredFeatures","http://www.w3.org/TR/SVG11/feature#Extensibility")
                             .attr("class","node_label")
-                            .attr("width", textSize[0]+10)
+                            .attr("width", textSize[0])
                             .attr("height", textSize[1])
                             .attr("x", 38)
                             .attr("y", (d.h/2 - textSize[1]/2))
@@ -2067,6 +2092,7 @@ RED.view = (function() {
                             text.attr("class","node_label node_label_"+d._def.align);
                             if (d._def.align === "right") {
                                 text.attr("text-anchor","end");
+                                fo.attr("x", 15);
                             }
                         }
 
@@ -2119,6 +2145,11 @@ RED.view = (function() {
                             //thisNode.selectAll(".node_icon_shade_right").attr("x",function(d){return d.w-30;});
                             //thisNode.selectAll(".node_icon_shade_border_right").attr("d",function(d){return "M "+(d.w-30)+" 1 l 0 "+(d.h-2)});
 
+// TODO Node COmment
+                            var commentNode = thisNode.selectAll(".node_comment_group");
+                            UIcomment.Draw(commentNode ,d);
+// END
+
                             var inputPorts = thisNode.selectAll(".port_input");
                             if (d.inputs === 0 && !inputPorts.empty()) {
                                 inputPorts.remove();
@@ -2126,10 +2157,11 @@ RED.view = (function() {
                             } else if (d.inputs === 1 && inputPorts.empty()) {
                                 var inputGroup = thisNode.append("g").attr("class","port_input")
 // TODO Port Labels
-                                    .each(function (dd,i){
-                                    var portsvg = d3.select(this);
-                                    RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_INPUT,i);
-                                });
+                                    .each(function (dd,i)
+                                    {
+                                        var portsvg = d3.select(this);
+                                        RED.portUtils.addPortLabel(portsvg,getPortLabel.bind(this),d, PORT_TYPE_INPUT,i);
+                                    });
 
                                 inputGroup.append("rect").attr("class","port").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
                                     .on("mousedown",function(d){portMouseDown(d,PORT_TYPE_INPUT,0);})
@@ -2172,16 +2204,21 @@ RED.view = (function() {
                                     var port = d3.select(this);
                                     var x = portPositions.out[i].x;
                                     var y = portPositions.out[i].y;
+                                    var r = portPositions.out[i].vertical == false ? 0 : 45;
                                     port.attr("transform", function(d) { return "translate("+x+","+y+")";});
 // TODO Port Labels
                                     port.selectAll("text.wire_label").text(function (dd,ii){
                                         return getPortLabel(d, PORT_TYPE_OUTPUT , i);
-                                    })
+                                    }).attr('transform', 'rotate('+r+')');
                                 });
 
                             }
-                            var textSize = calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
-
+                            var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
+                            // update foreign object text.
+                            thisNode.selectAll(".node_label > foreignobject")
+                                .attr("width", function(d) {return textSize[0]+10}) // Add 10 to stop the text from wrapping when it technically shouldn't.
+                                .attr("height", function(d) {return textSize[1]});
+                            // update labels.
                             thisNode.selectAll("div.node_label").text(function(d,i){
                                     var l = "";
                                     if (d._def.label) {
@@ -2209,6 +2246,7 @@ RED.view = (function() {
                                             s = "";
                                         }
                                         s = " "+s;
+
                                     }
                                     return "node_label"+(d._def.align?" node_label_"+d._def.align:"")+s;
                             });
@@ -2337,7 +2375,7 @@ RED.view = (function() {
                     return d.source.id+":"+d.sourcePort+":"+d.target.id+":"+d.target.i;
                 }
             );
-            var linkEnter = link.enter().insert("g",".node").attr("class","link");
+            var linkEnter = link.enter().insert("g",".node").attr("class","link")
 
             linkEnter.each(function(d,i) {
                 var l = d3.select(this);
@@ -2372,8 +2410,24 @@ RED.view = (function() {
                 l.append("svg:path").attr("class","link_outline link_path");
                 l.append("svg:path").attr("class","link_line link_path")
                     .classed("link_link", function(d) { return d.link })
-                    .classed("link_subflow", function(d) { return !d.link && activeSubflow });
-
+                    .classed("link_subflow", function(d) { return !d.link && activeSubflow }).attr('id',function (d){
+                    return "wire-"+d.source.id + "-"+d.target.id + "-"+d.sourcePort
+                });
+// TODO text follows paths. requires port id mapping.
+//                 l.append("svg:text")
+//                     .append("textPath")
+//                     .attr("xlink:href", function (d){return "#wire-"+d.source.id + "-"+d.target.id+ "-"+d.sourcePort})
+//                     .attr("startOffset", "40%")
+//                     .style("font-size", "10px")
+//                     .text(function (d){
+//                         var tl = d.target.inputLabels ? d.target.inputLabels[0] : '';
+//                         var sl = d.source.outputLabels? d.source.outputLabels[d.sourcePort] : '';
+//                         if(tl != null && tl != '' && tl != undefined)
+//                         {
+//                             sl += " : ";
+//                         }
+//                         return sl + tl;
+//                     });
 
             });
 
@@ -2705,7 +2759,7 @@ RED.view = (function() {
         },
         focus: focusView,
         importNodes: importNodes,
-        calculateTextWidth: calculateTextWidth,
+        calculateTextWidth: RED.utils.calculateTextWidth,
         select: function(selection) {
             if (typeof selection !== "undefined") {
                 clearSelection();

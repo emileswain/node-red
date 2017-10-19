@@ -16,6 +16,39 @@
 
 RED.utils = (function() {
 
+
+    function calculateTextWidth(str, className, offset,wrapWidth) {
+        return calculateTextDimensions(str,className,offset,0,wrapWidth)[0];
+    }
+
+    function calculateTextDimensions(str,className,offsetW,offsetH, wrapWidth) {
+        var sp = document.createElement("div");
+
+        sp.className = className;
+        sp.style.position = "absolute";
+        sp.style.top = "-1000px";
+        sp.style.top = "10px"
+        sp.textContent = (str||"");
+        sp.style.height = "auto";
+        sp.style.zIndex = 1000;
+        if(wrapWidth){
+            sp.style.width = wrapWidth
+            sp.style["max-width"] = wrapWidth + "px"
+        }
+        else {
+            sp.style.width = "auto";
+        }
+        document.body.appendChild(sp);
+        var w = sp.offsetWidth;
+        var h = sp.offsetHeight;
+        // if(className != "node_label")
+        // {
+        document.body.removeChild(sp);
+        //}
+
+        return [offsetW+w,offsetH+h];
+    }
+
     function formatString(str) {
         return str.replace(/\r?\n/g,"&crarr;").replace(/\t/g,"&rarr;");
     }
@@ -737,5 +770,7 @@ RED.utils = (function() {
         validatePropertyExpression: validatePropertyExpression,
         getNodeIcon: getNodeIcon,
         getNodeLabel: getNodeLabel,
+        calculateTextWidth: calculateTextWidth,
+        calculateTextDimensions: calculateTextDimensions,
     }
 })();
