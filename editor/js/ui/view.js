@@ -2147,7 +2147,7 @@ RED.view = (function() {
 
 // TODO Node COmment
                             var commentNode = thisNode.selectAll(".node_comment_group");
-                            UIcomment.Draw(commentNode ,d);
+                            Red.ui.commentbelow.Draw(commentNode ,d);
 // END
 
                             var inputPorts = thisNode.selectAll(".port_input");
