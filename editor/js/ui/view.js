@@ -2206,6 +2206,7 @@ RED.view = (function() {
             var links = vis.selectAll(".link_path");
             links.each(function(d) {
                 var link = d3.select(this);
+                //if(d.source.outputs == 0 || d.target.outputs == 0 )return;
                 if (d.added || d===selected_link || d.selected || dirtyNodes[d.source.id] || dirtyNodes[d.target.id]) {
                     link.attr("d",function(d){
 // TODO PORT-FLOW Draw Flow Wires // NO SUPPORTED/MAINTAINED.

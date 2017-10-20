@@ -129,11 +129,12 @@ RED.portUtils = (function () {
         var inputpositions = calculatePortPositions(inputNode, 0, 0);
 
         // This will be facing to the right or downwards
+        // Check for undefined as subflow in/out ports may not have outputs.
         var outdata = outputPositions.out[outputPortIndex];
-        var x1 = outputNode.x - outputNode.w / 2 + 5 + outdata.x;//+ outputNode.w/2;
-        var y1 = outputNode.y - outputNode.h / 2 + 5 + outdata.y;
-        var cx1 = x1 + (outdata.vertical ? 0 : 60);
-        var cy1 = y1 + (outdata.vertical ? 60 : 0);
+        var x1 = outputNode.x - outputNode.w / 2 + 5 + (outdata != undefined ? outdata.x :0 );//+ outputNode.w/2;
+        var y1 = outputNode.y - outputNode.h / 2 + 5 + (outdata != undefined ? outdata.y :0 );
+        var cx1 = x1 + (outdata != undefined ? (outdata.vertical ? 0 : 60) : 0);
+        var cy1 = y1 + (outdata != undefined? (outdata.vertical ? 60 : 0) : 0);
 
         // This will be facing to the left or upwards.
         var indata = inputpositions.in[0];
