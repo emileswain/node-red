@@ -1,5 +1,3 @@
-
-
 RED.ui = RED.ui || {};
 RED.ui.commentbelow = (function() {
     var component = {};

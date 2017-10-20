@@ -21,6 +21,10 @@ RED.view = (function() {
     // Node Size/Style Parameters
     var buttonWidth = 50;
     var minNodeHeight = 30;
+
+    // ************************************
+    // Measure node size....
+    // ************************************
     var setNodeSize = function (d, l)
     {
         var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
@@ -224,46 +228,24 @@ RED.view = (function() {
         .attr("height", space_height)
         .attr("fill","#fff");
 
-    var grid = vis.append("g");
+    // ************************************
+    // Create and Draw Grid
+    // ************************************
+    RED.ui.grid.create(vis);
+    var gridData = RED.ui.grid.getData();
+    gridData.space_height = space_height;
+    gridData.space_width = space_width;
+    gridData.gridSize = gridSize;
     updateGrid();
 
     function updateGrid() {
-        var gridTicks = [];
-        for (var i=0;i<space_width;i+=+gridSize) {
-            gridTicks.push(i);
-        }
-        grid.selectAll("line.horizontal").remove();
-        grid.selectAll("line.horizontal").data(gridTicks).enter()
-            .append("line")
-            .attr(
-                {
-                    "class":"horizontal",
-                    "x1" : 0,
-                    "x2" : space_width,
-                    "y1" : function(d){ return d;},
-                    "y2" : function(d){ return d;},
-                    "fill" : "none",
-                    "shape-rendering" : "crispEdges",
-                    "stroke" : "#eee",
-                    "stroke-width" : "1px"
-                });
-        grid.selectAll("line.vertical").remove();
-        grid.selectAll("line.vertical").data(gridTicks).enter()
-            .append("line")
-            .attr(
-                {
-                    "class":"vertical",
-                    "y1" : 0,
-                    "y2" : space_width,
-                    "x1" : function(d){ return d;},
-                    "x2" : function(d){ return d;},
-                    "fill" : "none",
-                    "shape-rendering" : "crispEdges",
-                    "stroke" : "#eee",
-                    "stroke-width" : "1px"
-                });
+        RED.ui.grid.Draw(vis,gridData);
     }
 
+
+    // ************************************
+    // Drag group
+    // ************************************
     var dragGroup = vis.append("g");
     var drag_lines = [];
 
@@ -1871,44 +1853,18 @@ RED.view = (function() {
 
                     if(d._def.defaults && d._def.defaults.comment != null)
                     {
-
                         RED.ui.commentbelow.create(node,d);
                         RED.ui.commentbelow.Draw(node,d);
-
                     }
 
-
                     if (d._def.badge) {
-                        //RED.ui.badge.create();
-                        var badge = node.append("svg:g").attr("class","node_badge_group");
-                        var badgeRect = badge.append("rect").attr("class","node_badge").attr("rx",5).attr("ry",5).attr("width",40).attr("height",15);
-                        badge.append("svg:text").attr("class","node_badge_label").attr("x",35).attr("y",11).attr("text-anchor","end").text(d._def.badge());
-                        if (d._def.onbadgeclick) {
-                            badgeRect.attr("cursor","pointer")
-                                .on("click",function(d) { d._def.onbadgeclick.call(d);d3.event.preventDefault();});
-                        }
+                        RED.ui.badge.create(node);
+                        RED.ui.badge.Draw(node);
                     }
 
                     if (d._def.button) {
-                        var nodeButtonGroup = node.append("svg:g")
-                            .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
-                            .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); });
-                        nodeButtonGroup.append("rect")
-                            .attr("rx",5)
-                            .attr("ry",5)
-                            .attr("width",32)
-                            .attr("height",node_height-4)
-                            .attr("fill","#eee");//function(d) { return d._def.color;})
-                        nodeButtonGroup.append("rect")
-                            .attr("class","node_button_button")
-                            .attr("x",function(d) { return d._def.align == "right"? 11:5})
-                            .attr("y",4)
-                            .attr("rx",4)
-                            .attr("ry",4)
-                            .attr("width",16)
-                            .attr("height",node_height-12)
-                            .attr("fill",function(d) { return d._def.color;})
-                            .attr("cursor","pointer")
+
+                        RED.ui.button.create(node,d)
                             .on("mousedown",function(d) {if (!lasso && isButtonEnabled(d)) {focusView();d3.select(this).attr("fill-opacity",0.2);d3.event.preventDefault(); d3.event.stopPropagation();}})
                             .on("mouseup",function(d) {if (!lasso && isButtonEnabled(d)) { d3.select(this).attr("fill-opacity",0.4);d3.event.preventDefault();d3.event.stopPropagation();}})
                             .on("mouseover",function(d) {if (!lasso && isButtonEnabled(d)) { d3.select(this).attr("fill-opacity",0.4);}})
@@ -1921,6 +1877,7 @@ RED.view = (function() {
                             }})
                             .on("click",nodeButtonClicked)
                             .on("touchstart",nodeButtonClicked)
+                        RED.ui.button.Draw(node,d);
                     }
 
                     var mainRect = node.append("rect")
@@ -1966,90 +1923,14 @@ RED.view = (function() {
                    //node.append("rect").attr("class", "node-gradient-bottom").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-bottom)").style("pointer-events","none");
 
                     if (d._def.icon) {
-                        var icon_url = RED.utils.getNodeIcon(d._def,d);
-                        var icon_group = node.append("g")
-                            .attr("class","node_icon_group")
-                            .attr("x",0).attr("y",0);
-
-
-                        var icon_shade = icon_group.append("rect")
-                            .attr("x",0).attr("y",0)
-                            .attr("class","node_icon_shade")
-                            .attr("width","30")
-                            .attr("stroke","none")
-                            .attr("fill","#000")
-                            .attr("fill-opacity","0.05")
-                            .attr("height",function(d){return Math.min(50,d.h-4);});
-
-                        var icon = icon_group.append("image")
-                            .attr("xlink:href",icon_url)
-                            .attr("class","node_icon")
-                            .attr("x",0)
-                            .attr("width","30")
-                            .attr("height","30");
-
-                        var icon_shade_border = icon_group.append("path")
-                            .attr("d",function(d) { return "M 30 1 l 0 "+(d.h-2)})
-                            .attr("class","node_icon_shade_border")
-                            .attr("stroke-opacity","0.1")
-                            .attr("stroke","#000")
-                            .attr("stroke-width","1");
-
-                        if ("right" == d._def.align) {
-                            icon_group.attr("class","node_icon_group node_icon_group_"+d._def.align);
-                            icon_shade_border.attr("d",function(d) { return "M 0 1 l 0 "+(d.h-2)})
-                            //icon.attr("class","node_icon node_icon_"+d._def.align);
-                            //icon.attr("class","node_icon_shade node_icon_shade_"+d._def.align);
-                            //icon.attr("class","node_icon_shade_border node_icon_shade_border_"+d._def.align);
-                        }
-
-                        //if (d.inputs > 0 && d._def.align == null) {
-                        //    icon_shade.attr("width",35);
-                        //    icon.attr("transform","translate(5,0)");
-                        //    icon_shade_border.attr("transform","translate(5,0)");
-                        //}
-                        //if (d._def.outputs > 0 && "right" == d._def.align) {
-                        //    icon_shade.attr("width",35); //icon.attr("x",5);
-                        //}
-
-                        var img = new Image();
-                        img.src = icon_url;
-                        img.onload = function() {
-                            icon.attr("width",Math.min(img.width,30));
-                            icon.attr("height",Math.min(img.height,30));
-                            icon.attr("x",15-Math.min(img.width,30)/2);
-                            //if ("right" == d._def.align) {
-                            //    icon.attr("x",function(d){return d.w-img.width-1-(d.outputs>0?5:0);});
-                            //    icon_shade.attr("x",function(d){return d.w-30});
-                            //    icon_shade_border.attr("d",function(d){return "M "+(d.w-30)+" 1 l 0 "+(d.h-2);});
-                            //}
-                        }
-
-                        //icon.style("pointer-events","none");
-                        icon_group.style("pointer-events","none");
+                        RED.ui.icon.Create(node,d);
+                        RED.ui.icon.Draw(node,d);
                     }
+
                     if (!isLink) {
 // TODO Node Design - Support wrapped text.
-                        var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
-                        var fo = node.append('foreignObject')
-                            .attr("text-anchor","start")
-                            .attr("requiredFeatures","http://www.w3.org/TR/SVG11/feature#Extensibility")
-                            .attr("class","node_label")
-                            .attr("width", textSize[0])
-                            .attr("height", textSize[1])
-                            .attr("x", 38)
-                            .attr("y", (d.h/2 - textSize[1]/2))
-                        var text = fo.append('xhtml:div')
-                            text.attr("class","node_label").text(l);
-                            text.attr("data:test",textSize[0]+"-"+textSize[1])
-// END
-                        if (d._def.align) {
-                            text.attr("class","node_label node_label_"+d._def.align);
-                            if (d._def.align === "right") {
-                                text.attr("text-anchor","end");
-                                fo.attr("x", 15);
-                            }
-                        }
+                        RED.ui.nodeLabel.create(node, d);
+                        RED.ui.nodeLabel.Draw(node, d);
 
                         var status = node.append("svg:g").attr("class","node_status_group").style("display","none");
 
@@ -2061,8 +1942,8 @@ RED.view = (function() {
                             .attr("class","node_status_label")
                             .attr("x",20).attr("y",9);
                     }
-                    //node.append("circle").attr({"class":"centerDot","cx":0,"cy":0,"r":5});
 
+                    //node.append("circle").attr({"class":"centerDot","cx":0,"cy":0,"r":5});
                     //node.append("path").attr("class","node_error").attr("d","M 3,-3 l 10,0 l -5,-8 z");
 
                     //TODO: these ought to be SVG
@@ -2089,26 +1970,20 @@ RED.view = (function() {
                                 .attr("width",function(d){return d.w})
                                 .attr("height",function(d){return d.h})
                                 .classed("node_selected",function(d) { return d.selected; })
-                                .classed("node_highlighted",function(d) { return d.highlighted; })
-                            ;
+                                .classed("node_highlighted",function(d) { return d.highlighted; });
+
                             //thisNode.selectAll(".node-gradient-top").attr("width",function(d){return d.w});
                             //thisNode.selectAll(".node-gradient-bottom").attr("width",function(d){return d.w}).attr("y",function(d){return d.h-30});
 
-                            thisNode.selectAll(".node_icon_group_right").attr("transform", function(d){return "translate("+(d.w-30)+",0)"});
-                            thisNode.selectAll(".node_label_right").attr("x", function(d){return d.w-38});
-                            //thisNode.selectAll(".node_icon_right").attr("x",function(d){return d.w-d3.select(this).attr("width")-1-(d.outputs>0?5:0);});
-                            //thisNode.selectAll(".node_icon_shade_right").attr("x",function(d){return d.w-30;});
-                            //thisNode.selectAll(".node_icon_shade_border_right").attr("d",function(d){return "M "+(d.w-30)+" 1 l 0 "+(d.h-2)});
+                            //thisNode.selectAll(".node_label_right").attr("x", function(d){return d.w-38});
 
-// TODO Node COmment
-                            var commentNode = thisNode.selectAll(".node_comment_group");
-                            RED.ui.commentbelow.Draw(commentNode ,d);
-// END
+                            RED.ui.commentbelow.Draw(thisNode ,d);
+                            RED.ui.icon.Draw(thisNode, d);
+                            RED.ui.nodeLabel.Draw(thisNode, d);
 
                             var inputPorts = thisNode.selectAll(".port_input");
                             if (d.inputs === 0 && !inputPorts.empty()) {
                                 inputPorts.remove();
-                                //nodeLabel.attr("x",30);
                             } else if (d.inputs === 1 && inputPorts.empty()) {
                                 var inputGroup = thisNode.append("g").attr("class","port_input")
 // TODO Port Labels
@@ -2168,60 +2043,6 @@ RED.view = (function() {
                                 });
 
                             }
-                            var textSize = RED.utils.calculateTextDimensions(l, "node_label", 0, 0, (d._def.defaults.nodeWidth ? d._def.defaults.nodeWidth.value : null));
-                            // update foreign object text.
-                            thisNode.selectAll(".node_label > foreignobject")
-                                .attr("width", function(d) {return textSize[0]}) // Add 10 to stop the text from wrapping when it technically shouldn't.
-                                .attr("height", function(d) {return textSize[1]});
-                            // update labels.
-                            thisNode.selectAll("div.node_label").text(function(d,i){
-                                    var l = "";
-                                    if (d._def.label) {
-                                        l = d._def.label;
-                                        try {
-                                            l = (typeof l === "function" ? l.call(d) : l)||"";
-                                            l = RED.text.bidi.enforceTextDirectionWithUCC(l);
-                                        } catch(err) {
-                                            console.log("Definition error: "+d.type+".label",err);
-                                            l = d.type;
-                                        }
-                                    }
-                                    return l;
-                                })
-                                //.attr("y", function(d){return (d.h/2)-1;})
-                                .attr("y", function(d){return (d.h/2 - textSize[1]/2);})
-                                .attr("class",function(d){
-                                    var s = "";
-                                    if (d._def.labelStyle) {
-                                        s = d._def.labelStyle;
-                                        try {
-                                            s = (typeof s === "function" ? s.call(d) : s)||"";
-                                        } catch(err) {
-                                            console.log("Definition error: "+d.type+".labelStyle",err);
-                                            s = "";
-                                        }
-                                        s = " "+s;
-
-                                    }
-                                    return "node_label"+(d._def.align?" node_label_"+d._def.align:"")+s;
-                            });
-
-                            if (d._def.icon) {
-                                icon = thisNode.select(".node_icon");
-                                var current_url = icon.attr("xlink:href");
-                                var new_url = RED.utils.getNodeIcon(d._def,d);
-                                if (new_url !== current_url) {
-                                    icon.attr("xlink:href",new_url);
-                                    var img = new Image();
-                                    img.src = new_url;
-                                    img.onload = function() {
-                                        icon.attr("width",Math.min(img.width,30));
-                                        icon.attr("height",Math.min(img.height,30));
-                                        icon.attr("x",15-Math.min(img.width,30)/2);
-                                    }
-                                }
-                            }
-
 
                             thisNode.selectAll(".node_tools").attr("x",function(d){return d.w-35;}).attr("y",function(d){return d.h-20;});
 
@@ -2241,11 +2062,6 @@ RED.view = (function() {
                                     port.attr("transform",function(d){return "translate("+x+","+y+")";})
                             });
 
-
-
-                            thisNode.selectAll(".node_icon").attr("y",function(d){return (d.h-d3.select(this).attr("height"))/2;});
-                            thisNode.selectAll(".node_icon_shade").attr("height",function(d){return d.h;});
-                            thisNode.selectAll(".node_icon_shade_border").attr("d",function(d){ return "M "+(("right" == d._def.align) ?0:30)+" 1 l 0 "+(d.h-2)});
 
                             thisNode.selectAll(".node_button").attr("opacity",function(d) {
                                 return (activeSubflow||!isButtonEnabled(d))?0.4:1
@@ -2678,11 +2494,12 @@ RED.view = (function() {
     }
 
     function toggleShowGrid(state) {
-        if (state) {
-            grid.style("visibility","visible");
-        } else {
-            grid.style("visibility","hidden");
-        }
+        RED.ui.grid.toggleShowGrid(vis,state);
+        // if (state) {
+        //     grid.style("visibility","visible");
+        // } else {
+        //     grid.style("visibility","hidden");
+        // }
     }
     function toggleSnapGrid(state) {
         snapGrid = state;
@@ -2803,6 +2620,7 @@ RED.view = (function() {
                 return gridSize;
             } else {
                 gridSize = v;
+                gridData.gridSize = v;
                 updateGrid();
             }
         }
